@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import { Link, BrowserRouter as Router, Route } from "react-router-dom"
 import { Input } from "@/components/ui/input"
 import { DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuItem } from "@/components/ui/dropdown-menu"
@@ -18,43 +18,21 @@ import {ArrowLeftIcon,
     SettingsIcon,
     UsersIcon,
     XIcon } from "@/components/ui/icons";
+import { getProducts } from "../../services/api"
 
 export default function Products() {
-  const [products, setProducts] = useState([
-    {
-      id: "PROD001",
-      name: "Wireless Headphones",
-      description: "High-quality wireless headphones with noise cancellation",
-      category: "Electronics",
-      price: 99.99,
-      stock: 50,
-    },
-    {
-      id: "PROD002",
-      name: "Cotton T-Shirt",
-      description: "Soft and comfortable 100% cotton t-shirt",
-      category: "Clothing",
-      price: 24.99,
-      stock: 100,
-    },
-    {
-      id: "PROD003",
-      name: "Ceramic Mug",
-      description: "Handcrafted ceramic mug with a unique design",
-      category: "Home",
-      price: 12.99,
-      stock: 75,
-    },
-    {
-      id: "PROD004",
-      name: "Hiking Backpack",
-      description: "Durable and spacious backpack for outdoor adventures",
-      category: "Outdoor",
-      price: 79.99,
-      stock: 30,
-    },
-  ])
+  const [products, setProducts] = useState([])
+  console.log(products);
   const [selectedProduct, setSelectedProduct] = useState(null)
+
+  useEffect( () => {
+    const fetchProducts = async () => {
+      const products = await getProducts();
+      console.log(products);
+      setProducts(products);
+    };
+    fetchProducts();
+  }, []);
   
   const handleProductSelect = (product) => {
     setSelectedProduct(product)
@@ -122,22 +100,13 @@ export default function Products() {
                 </div>
               </form>
             </div>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="rounded-full border w-8 h-8">
-                  <img src="/placeholder.svg" width="32" height="32" className="rounded-full" alt="Avatar" />
-                  <span className="sr-only">Toggle user menu</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>Settings</DropdownMenuItem>
-                <DropdownMenuItem>Support</DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>Logout</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            <details className="dropdown">
+              <summary className="btn m-1">open or close</summary>
+              <ul className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                <li><a>Item 1</a></li>
+                <li><a>Item 2</a></li>
+              </ul>
+            </details>
           </header>
           <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
             {selectedProduct ? (
@@ -162,7 +131,7 @@ export default function Products() {
                           id: selectedProduct.id,
                           name: formData.get("name"),
                           description: formData.get("description"),
-                          category: formData.get("category"),
+                          category_id: formData.get("category_id"),
                           price: parseFloat(formData.get("price")),
                           stock: parseInt(formData.get("stock")),
                         }
@@ -179,8 +148,8 @@ export default function Products() {
                           <Textarea id="description" defaultValue={selectedProduct.description} />
                         </div>
                         <div className="grid gap-2">
-                          <Label htmlFor="category">Category</Label>
-                          <Input id="category" type="text" defaultValue={selectedProduct.category} />
+                          <Label htmlFor="category_id">Category</Label>
+                          <Input id="category_id" type="text" defaultValue={selectedProduct.category.nmae} />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                           <div className="grid gap-2">
@@ -221,10 +190,10 @@ export default function Products() {
                         </TableRow>
                       </TableHeader>
                       <TableBody>
-                        {products.map((product) => (
+                        {products?.map((product) => (
                           <TableRow key={product.id}>
                             <TableCell>{product.name}</TableCell>
-                            <TableCell>{product.category}</TableCell>
+                            <TableCell>{product.category.name}</TableCell>
                             <TableCell>${product.price.toFixed(2)}</TableCell>
                             <TableCell>{product.stock}</TableCell>
                             <TableCell>
