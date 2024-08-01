@@ -26,7 +26,7 @@ const CardTitle = ({ children, className = "" }) => {
 
 const CardContent = ({ children, className = "" }) => {
   return (
-    <div className={`px-4 py-5 sm:px-6 ${className}`}>
+    <div className={`p-1 sm:px-4 ${className}`}>
       {children}
     </div>
   );

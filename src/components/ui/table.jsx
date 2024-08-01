@@ -5,17 +5,36 @@ const TableData = ({ data = [], columns = [] }) => {
 		<Table>
 			<TableHeader>
 				<TableRow>
-					{column?.map((c) => (
-						<TableHead>{c.label}</TableHead>
+					{columns?.map((c, index) => (
+						<TableHead key={index}>{c.label}</TableHead>
 					))}
+					<TableHead>Acciones</TableHead>
 				</TableRow>
 			</TableHeader>
 			<TableBody>
 				{data?.map((d, index) => (
 					<TableRow key={index}>
-						{Object.keys(d).map((key) => (
-							<TableCell>{d[key]}</TableCell>
+						{columns?.map((c1, index) => (
+							<TableCell key={index}>
+								{c1.name.includes(".") ?
+									d[c1.name.split(".")[0]][c1.name.split(".")[1]] :
+									d[c1.name]}
+							</TableCell>
 						))}
+						<TableCell>
+							<details className="dropdown">
+								<summary className="btn m-1">open or close</summary>
+								<ul className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+									<li>
+										<a>Item 1</a>
+									</li>
+									<li>
+										<a>Item 2</a>
+									</li>
+								</ul>
+							</details>
+						</TableCell>
+
 					</TableRow>
 				))}
 			</TableBody>
@@ -51,4 +70,4 @@ const TableCell = ({ children, className = '' }) => {
 	return <td className={`px-6 py-4 whitespace-nowrap text-sm text-gray-500 ${className}`}>{children}</td>
 }
 
-export { Table, TableHeader, TableRow, TableHead, TableBody, TableCell }
+export { Table, TableHeader, TableRow, TableHead, TableBody, TableCell, TableData }
