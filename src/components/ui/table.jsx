@@ -1,51 +1,54 @@
-import React from 'react';
+import React from 'react'
 
-const Table = ({ children, className = "" }) => {
-  return (
-    <table className={`min-w-full divide-y divide-gray-200 ${className}`}>
-      {children}
-    </table>
-  );
-};
+const TableData = ({ data = [], columns = [] }) => {
+	return (
+		<Table>
+			<TableHeader>
+				<TableRow>
+					{column?.map((c) => (
+						<TableHead>{c.label}</TableHead>
+					))}
+				</TableRow>
+			</TableHeader>
+			<TableBody>
+				{data?.map((d, index) => (
+					<TableRow key={index}>
+						{Object.keys(d).map((key) => (
+							<TableCell>{d[key]}</TableCell>
+						))}
+					</TableRow>
+				))}
+			</TableBody>
+		</Table>
+	)
+}
 
-const TableHeader = ({ children, className = "" }) => {
-  return (
-    <thead className={` ${className}`}>
-      {children}
-    </thead>
-  );
-};
+const Table = ({ children, className = '' }) => {
+	return <table className={`min-w-full divide-y divide-gray-200 ${className}`}>{children}</table>
+}
 
-const TableRow = ({ children, className = "" }) => {
-  return (
-    <tr className={`bg-white divide-x divide-gray-200 ${className}`}>
-      {children}
-    </tr>
-  );
-};
+const TableHeader = ({ children, className = '' }) => {
+	return <thead className={` ${className}`}>{children}</thead>
+}
 
-const TableHead = ({ children, className = "" }) => {
-  return (
-    <th className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${className}`}>
-      {children}
-    </th>
-  );
-};
+const TableRow = ({ children, className = '' }) => {
+	return <tr className={`bg-white divide-x divide-gray-200 ${className}`}>{children}</tr>
+}
 
-const TableBody = ({ children, className = "" }) => {
-  return (
-    <tbody className={`bg-white divide-y divide-gray-200 ${className}`}>
-      {children}
-    </tbody>
-  );
-};
+const TableHead = ({ children, className = '' }) => {
+	return (
+		<th className={`px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider ${className}`}>
+			{children}
+		</th>
+	)
+}
 
-const TableCell = ({ children, className = "" }) => {
-  return (
-    <td className={`px-6 py-4 whitespace-nowrap text-sm text-gray-500 ${className}`}>
-      {children}
-    </td>
-  );
-};
+const TableBody = ({ children, className = '' }) => {
+	return <tbody className={`bg-white divide-y divide-gray-200 ${className}`}>{children}</tbody>
+}
 
-export { Table, TableHeader, TableRow, TableHead, TableBody, TableCell };
+const TableCell = ({ children, className = '' }) => {
+	return <td className={`px-6 py-4 whitespace-nowrap text-sm text-gray-500 ${className}`}>{children}</td>
+}
+
+export { Table, TableHeader, TableRow, TableHead, TableBody, TableCell }

@@ -1,13 +1,13 @@
-import React from 'react';
-import ProductList from './components/ProductList';
-import Products from './components/Products'; 
+import React from 'react'
+import ProductList from './components/ProductList'
+import Products from './components/Products'
 
 const App = () => {
-  return (
-    <div className="App">
-      <Products/>
-    </div>
-  );
-};
+	return (
+		<div className="App">
+			<Products />
+		</div>
+	)
+}
 
-export default App;
+export default App
