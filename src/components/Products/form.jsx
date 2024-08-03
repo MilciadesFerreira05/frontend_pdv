@@ -1,10 +1,25 @@
-const form = ({ selectedProduct }) => {
-    <div className="grid gap-4 md:gap-8">
+import { Button } from '../ui/button';
+import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
+import { ArrowLeftIcon } from '../ui/icons';
+import {Label} from '../ui/label';
+import {Input} from '../ui/input';
+import {Textarea} from '../ui/textarea';
+import Select from 'react-select'
+
+const Form = ({ selectedProduct, handleProductUpdate, handleProductCreate, setProduct}) => {
+    const options = [
+        { value: 'chocolate', label: 'Chocolate' },
+        { value: 'strawberry', label: 'Strawberry' },
+        { value: 'vanilla', label: 'Vanilla' }
+      ];
+
+    return <div className="grid gap-4 md:gap-8">
         <div className="flex items-center">
             <Button
                 variant="outline"
                 size="icon"
                 className="mr-4"
+                onClick={() => setProduct(null)}
             >
                 <ArrowLeftIcon className="h-4 w-4" />
                 <span className="sr-only">Back</span>
@@ -28,7 +43,7 @@ const form = ({ selectedProduct }) => {
                             price: parseFloat(formData.get('price')),
                             stock: parseInt(formData.get('stock')),
                         }
-                        //handleProductUpdate(updatedProduct)
+                        handleProductUpdate(updatedProduct)
                     }}
                 >
                     <div className="grid gap-4">
@@ -45,11 +60,8 @@ const form = ({ selectedProduct }) => {
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="category_id">Category</Label>
-                            <Input
-                                id="category_id"
-                                type="text"
-                                defaultValue={selectedProduct.category.nmae}
-                            />
+
+                            <Select options={options} isMulti />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
@@ -62,11 +74,12 @@ const form = ({ selectedProduct }) => {
                                 />
                             </div>
                             <div className="grid gap-2">
-                                <Label htmlFor="stock">Stock</Label>
+
+                                <Label htmlFor="stock">IVA %</Label>
                                 <Input
-                                    id="stock"
+                                    id="iva"
                                     type="number"
-                                    defaultValue={selectedProduct.stock}
+                                    defaultValue={selectedProduct.iva}
                                 />
                             </div>
                         </div>
@@ -80,4 +93,4 @@ const form = ({ selectedProduct }) => {
     </div>
 }
 
-export default form
+export default Form

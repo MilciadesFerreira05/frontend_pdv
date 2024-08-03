@@ -1,6 +1,7 @@
 import React from 'react'
+import { MenuIcon } from './icons'
 
-const TableData = ({ data = [], columns = [] }) => {
+const TableData = ({ data = [], columns = [], actions = [] }) => {
 	return (
 		<Table>
 			<TableHeader>
@@ -23,14 +24,20 @@ const TableData = ({ data = [], columns = [] }) => {
 						))}
 						<TableCell>
 							<details className="dropdown">
-								<summary className="btn m-1">open or close</summary>
+								<summary className="btn m-1">
+									<MenuIcon/>
+									Opciones
+								</summary>
 								<ul className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-									<li>
-										<a>Item 1</a>
-									</li>
-									<li>
-										<a>Item 2</a>
-									</li>
+									{actions?.map((a, index) => (
+										<li key={index}>
+											<a
+												onClick={() => a.onClick(d)}
+											>
+												{a.label}
+											</a>
+										</li>
+									))}
 								</ul>
 							</details>
 						</TableCell>
