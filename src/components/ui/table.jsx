@@ -24,16 +24,18 @@ const TableData = ({ data = [], columns = [], actions = [] }) => {
 						))}
 						<TableCell>
 							<details className="dropdown">
-								<summary className="btn m-1">
-									<MenuIcon/>
+								<summary className="btn m-1 btn-sm">
+									<MenuIcon className="h-4 w-4" />
 									Opciones
 								</summary>
-								<ul className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+								<ul className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow z-[1]">
 									{actions?.map((a, index) => (
 										<li key={index}>
+											
 											<a
 												onClick={() => a.onClick(d)}
 											>
+												{a.icon ? a.icon : null}
 												{a.label}
 											</a>
 										</li>

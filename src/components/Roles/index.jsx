@@ -23,7 +23,7 @@ import Form from './form';
 export default function Products() {
 	const [products, setProducts] = useState([]);
 	const [selectedProduct, setSelectedProduct] = useState(null);
-	const [sidebarOpen, setSidebarOpen] = useState(false);
+
 
 	//   useEffect(() => {
 	//     const fetchProducts = async () => {
@@ -58,7 +58,7 @@ export default function Products() {
 			price: 10.99,
 			description: "Descripción del producto 1",
 			stock: 10,
-			category: {id: 1, name: "Categoria 1" },
+			category: { name: "Categoria 1" },
 			user: { username: "Usuario 1" },
 		},
 		{
@@ -67,7 +67,7 @@ export default function Products() {
 			price: 20.99,
 			description: "Descripción del Producto 2",
 			stock: 20,
-			category: {id: 2, name: "Categoria 2" },
+			category: { name: "Categoria 2" },
 			user: { username: "Usuario 2" },
 		},
 		{
@@ -76,7 +76,7 @@ export default function Products() {
 			price: 30.99,
 			description: "Descripción del Producto 3",
 			stock: 30,
-			category: {id: 3, name: "Categoria 3" },
+			category: { name: "Categoria 3" },
 			user: { username: "Usuario 3" },
 		},
 	];
@@ -109,28 +109,33 @@ export default function Products() {
 	};
 
 	return (
-	
-
-		<main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-			{
-				selectedProduct ?
-					<Form selectedProduct={selectedProduct} handleProductUpdate={handleProductUpdate} handleProductCreate={handleProductCreate} setProduct={setSelectedProduct}/>
-					:
-					<div className="grid gap-4 md:gap-8">
-						<div className="flex justify-between items-center">
-							<h1 className="text-2xl font-bold">Products</h1>
-							<Button variant="primary" onClick={() => setSelectedProduct({})}>
-								Add Product
-							</Button>
-						</div>
-						<Card>
-							<CardContent>
-								<TableData data={fakeData} columns={columns} actions={actions} />
-							</CardContent>
-						</Card>
-					</div>
-			}
-		</main>
-
+		<Router>
+			<div className="grid min-h-screen w-full grid-cols-1 lg:grid-cols-[280px_1fr]">
+				<Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+				<div className="flex flex-col">
+					<Navbar toggleSidebar={toggleSidebar} />
+					<main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
+						{
+							selectedProduct ?
+								<Form selectedProduct={selectedProduct} handleProductUpdate={handleProductUpdate} handleProductCreate={handleProductCreate} setProduct={setSelectedProduct}/>
+								:
+								<div className="grid gap-4 md:gap-8">
+									<div className="flex justify-between items-center">
+										<h1 className="text-2xl font-bold">Products</h1>
+										<Button variant="primary" onClick={() => setSelectedProduct({})}>
+											Add Product
+										</Button>
+									</div>
+									<Card>
+										<CardContent>
+											<TableData data={fakeData} columns={columns} actions={actions} />
+										</CardContent>
+									</Card>
+								</div>
+						}
+					</main>
+				</div>
+			</div>
+		</Router>
 	);
 }

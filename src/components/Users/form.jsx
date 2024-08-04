@@ -8,9 +8,9 @@ import Select from 'react-select'
 
 const Form = ({ selectedProduct, handleProductUpdate, handleProductCreate, setProduct}) => {
     const options = [
-        { value: '1', label: 'Chocolate' },
-        { value: '2', label: 'Strawberry' },
-        { value: '3', label: 'Vanilla' }
+        { value: 'chocolate', label: 'Chocolate' },
+        { value: 'strawberry', label: 'Strawberry' },
+        { value: 'vanilla', label: 'Vanilla' }
       ];
 
     return <div className="grid gap-4 md:gap-8">
@@ -39,12 +39,10 @@ const Form = ({ selectedProduct, handleProductUpdate, handleProductCreate, setPr
                             id: selectedProduct.id,
                             name: formData.get('name'),
                             description: formData.get('description'),
-                            category:{id: formData.get('category_id')},
+                            category_id: formData.get('category_id'),
                             price: parseFloat(formData.get('price')),
-                            iva: parseInt(formData.get('iva')),
+                            stock: parseInt(formData.get('stock')),
                         }
-                        console.log(updatedProduct);
-                        
                         handleProductUpdate(updatedProduct)
                     }}
                 >
@@ -62,7 +60,8 @@ const Form = ({ selectedProduct, handleProductUpdate, handleProductCreate, setPr
                         </div>
                         <div className="grid gap-2">
                             <Label htmlFor="category_id">Category</Label>
-                            <Select options={options} defaultValue={selectedProduct.category?.id} name="category_id" />
+
+                            <Select options={options} isMulti />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">

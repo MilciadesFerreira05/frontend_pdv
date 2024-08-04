@@ -32,5 +32,14 @@ const CardContent = ({ children, className = "" }) => {
   );
 };
 
-export { Card, CardHeader, CardTitle, CardContent };
+
+const CardFooter = ({ children, className = "" }) => {
+  return (
+    <div className={`px-4 py-4 bg-gray-50 text-right sm:px-6 ${className}`}>
+      {children}
+    </div>
+  );
+};
+
+export { Card, CardHeader, CardTitle, CardContent, CardFooter };
 

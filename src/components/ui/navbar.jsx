@@ -11,16 +11,22 @@ const Navbar = ({ toggleSidebar, searchData }) => {
         <span className="sr-only">Open sidebar</span>
       </button>
       <div className="w-full flex-1">
-        <form>
-          <div className="relative">
-            <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
-            <Input
-              type="search"
-              placeholder="Search products..."
-              className="w-full bg-background shadow-none appearance-none pl-8 md:w-2/3 lg:w-1/3"
-            />
-          </div>
-        </form>
+        {searchData ? (
+          <form>
+            <div className="relative">
+              <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+              <Input
+                type="search"
+                placeholder={searchData.placeholder}
+                className="w-full bg-background shadow-none appearance-none pl-8 md:w-2/3 lg:w-1/3"
+              />
+            </div>
+          </form>
+          
+          ): (
+            <h1 className="text-2xl font-bold">Punto de venta</h1>
+          )
+        }
       </div>
       <details className="dropdown">
         
