@@ -5,7 +5,7 @@ import Navbar from '../ui/navbar';
 import Products from '../Products';
 import Categories from '../Categories';
 import Clients from '../Clients';
-import Form from '../PurchaseProducts/form';
+import PrivateRoute from '../../services/Auth/PrivateRoute';
 
 
 const Home = () => {
@@ -23,10 +23,9 @@ const Home = () => {
 				<div className="flex flex-col">
 					<Navbar toggleSidebar={toggleSidebar} searchData = {null} />
           <div className="p-4">
-            <Form/>
-            <Route path="/products" component={Products} />
-            <Route path="/categories" component={Categories} />
-            <Route path="/clients" component={Clients} />
+            <PrivateRoute path="/products" component={Products} />
+            <PrivateRoute path="/categories" component={Categories} />
+            <PrivateRoute path="/clients" component={Clients} />
           </div>
 				</div>
 			</div>
