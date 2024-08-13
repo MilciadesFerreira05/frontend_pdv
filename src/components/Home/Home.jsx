@@ -1,36 +1,45 @@
-import { useState } from 'react';
-import { Router, Route } from 'wouter';
+import { useState,useContext } from 'react';
+import { Route, Switch, Redirect } from 'wouter';
 import Sidebar from '../ui/sidebar';
 import Navbar from '../ui/navbar';
 import Products from '../Products';
 import Categories from '../Categories';
 import Clients from '../Clients';
-import PrivateRoute from '../../services/Auth/PrivateRoute';
-
+import Login from '../Auth/Login';
+import { AuthContext } from '../../services/Auth/AuthContext';
 
 const Home = () => {
-
+  const { isAuthenticated } = useContext(AuthContext);
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const toggleSidebar = () => {
     setSidebarOpen(!sidebarOpen);
   };
 
+  // Mostrar componente login si no esta autenticado
+  if(!isAuthenticated) {
+    return <Route path="/login" component={Login} />
+  }
+
+  // Mostrar la aplicacion si esta autenticado
   return (
-		<Router>
-			<div className="grid min-h-screen w-full grid-cols-1 lg:grid-cols-[280px_1fr]">
-				<Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
-				<div className="flex flex-col">
-					<Navbar toggleSidebar={toggleSidebar} searchData = {null} />
+      <div className="grid min-h-screen w-full grid-cols-1 lg:grid-cols-[280px_1fr]">
+        <Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
+        <div className="flex flex-col">
+          <Navbar toggleSidebar={toggleSidebar} searchData = {null} />
           <div className="p-4">
-            <PrivateRoute path="/products" component={Products} />
-            <PrivateRoute path="/categories" component={Categories} />
-            <PrivateRoute path="/clients" component={Clients} />
+            <Switch>
+              <Route path="/">
+                <Redirect to="/products"  />
+              </Route>
+              <Route path="/products" component={Products} />
+              <Route path="/categories" component={Categories} />
+              <Route path="/clients" component={Clients} />
+            </Switch>
           </div>
-				</div>
-			</div>
-		</Router>
-  );
+        </div>
+      </div>
+    )
 };
 
 export default Home;

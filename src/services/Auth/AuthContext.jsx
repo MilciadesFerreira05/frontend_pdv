@@ -22,7 +22,7 @@ const AuthProvider = ({ children }) => {
     } else {
       setLocation('/login');
     }
-  }, [setLocation]);
+  }, [setLocation, location]);
 
   const login = (token) => {
     localStorage.setItem('token', token);
