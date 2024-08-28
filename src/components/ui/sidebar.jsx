@@ -1,8 +1,28 @@
+// Sidebar.js
 import { Link, useLocation } from "wouter";
-import { Package2Icon, PackageIcon, ClipboardIcon, UsersIcon, SettingsIcon, XIcon, CurrenciesIcon } from "./icons";
+import { Package2Icon, PackageIcon, ClipboardIcon, UsersIcon, SettingsIcon, CurrenciesIcon, XIcon } from "./icons";
+import { useContext } from "react";
+import { AuthContext } from "./../../services/Auth/AuthContext"; // Asegúrate de importar tu contexto de autenticación
+
+const menuItems = [
+  { path: "/products", text: "Productos", icon: <PackageIcon className="h-4 w-4" />, permission: "Product.all" },
+  { path: "/categories", text: "Categorías", icon: <ClipboardIcon className="h-4 w-4" />, permission: "Category.all" },
+  { path: "/clients", text: "Clientes", icon: <UsersIcon className="h-4 w-4" />, permission: "Client.all" },
+  { path: "/suppliers", text: "Proveedores", icon: <CurrenciesIcon className="h-4 w-4" />, permission: "Supplier.all" },
+  { path: "/sales", text: "Ventas", icon: <ClipboardIcon className="h-4 w-4" />, permission: "ProductSale.all" },
+  { path: "/purchases", text: "Compras", icon: <ClipboardIcon className="h-4 w-4" />, permission: "ProductPurchase.all" },
+  { path: "/roles", text: "Roles", icon: <SettingsIcon className="h-4 w-4" />, permission: "Role.all" },
+  { path: "/users", text: "Usuarios", icon: <UsersIcon className="h-4 w-4" />, permission: "User.all" }
+];
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {
-  const [, location] = useLocation();
+  const { user } = useContext(AuthContext); // Obtener el usuario del contexto de autenticación
+
+  // Función para verificar si el usuario tiene un permiso específico
+  const hasPermission = (permission) => {
+    return user?.authorities?.includes(permission);
+  };
+
   return (
     <div className={`border-r bg-muted/40 ${isOpen ? 'block' : 'hidden'} lg:block`}>
       <div className="flex h-full max-h-screen flex-col gap-2">
@@ -17,19 +37,18 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
         </div>
         <div className="flex-1 overflow-auto py-2">
           <nav className="grid items-start px-4 text-sm font-medium">
-            <Link href="/products" className={(active) => (active ? 'text-primary' : ' text-muted-foreground') + " flex items-center gap-3 rounded-lg bg-muted px-3 py-2 transition-all hover:text-primary"}>
-              <PackageIcon className="h-4 w-4" />
-              Productos
-            </Link>
-            <Link to="/categories" className={(active) => (active ? 'text-primary' : ' text-muted-foreground') + " flex items-center gap-3 rounded-lg bg-muted px-3 py-2 transition-all hover:text-primary"}>
-              <ClipboardIcon className="h-4 w-4" />
-              Categorias
-            </Link>
-            <Link to="/clients" className={(active) => (active ? 'text-primary' : ' text-muted-foreground') + " flex items-center gap-3 rounded-lg bg-muted px-3 py-2 transition-all hover:text-primary"}>
-              <UsersIcon className="h-4 w-4" />
-              Clientes
-            </Link>
-
+            {menuItems.map((item) => (
+              hasPermission(item.permission) && (
+                <Link
+                  key={item.path}
+                  href={item.path}
+                  className={(active) => (active ? 'text-primary' : ' text-muted-foreground') + " flex items-center gap-3 rounded-lg bg-muted px-3 py-2 transition-all hover:text-primary"}
+                >
+                  {item.icon}
+                  {item.text}
+                </Link>
+              )
+            ))}
           </nav>
         </div>
       </div>

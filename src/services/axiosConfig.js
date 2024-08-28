@@ -4,9 +4,10 @@ const instance = axios.create({
   baseURL: 'http://localhost:8080/api',
 });
 
-// Interceptor para incluir el token JWT en cada solicitud
+
 instance.interceptors.request.use(config => {
-  const token = localStorage.getItem('token');
+  const user  = JSON.parse(localStorage.getItem('user'));
+  const token = user?.token;
   console.log(token);
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;

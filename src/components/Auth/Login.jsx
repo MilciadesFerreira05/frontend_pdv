@@ -33,9 +33,8 @@ export default function Login() {
             const data = await response.json();
 
             if (response.ok) {
-                console.log('Login successful, received token:', data.token);
-                login(data.token);
-                localStorage.setItem('token', data.token);
+                console.log('Login successful, received token:', data);
+                login(data);
             } else {
                 alert('Credenciales incorrectas');
             }
