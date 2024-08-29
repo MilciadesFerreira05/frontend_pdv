@@ -5,11 +5,14 @@ import { TableData } from '../ui/table';
 import ProductService from '../../services/ProductService'; // Asegúrate de importar el servicio correctamente
 import Form from './form';
 import { AuthContext } from '../../services/Auth/AuthContext'; // Asegúrate de importar el contexto de autenticación correctamente
+import { DeleteIcon, EditIcon } from '../ui/icons';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
 
 export default function Products() {
     const [products, setProducts] = useState([]);
     const [selectedProduct, setSelectedProduct] = useState(null);
-    const [sidebarOpen, setSidebarOpen] = useState(false);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [productToDelete, setProductToDelete] = useState(null);
     const { user } = useContext(AuthContext); // Obtener los permisos del usuario desde el contexto
 
     useEffect(() => {
@@ -27,6 +30,8 @@ export default function Products() {
     }, []);
 
     const handleProductCreate = async (newProduct) => {
+        console.log(newProduct);
+        
         try {
             const createdProduct = await ProductService.save(newProduct); // Llamada al servicio para crear el producto
             setProducts([...products, createdProduct]);
@@ -51,38 +56,42 @@ export default function Products() {
 
     const handleProductDelete = async (productId) => {
         try {
-            await ProductService.delete(productId); // Llamada al servicio para eliminar el producto
-            const updatedProducts = products.filter((p) => p.id !== productId);
-            setProducts(updatedProducts);
-            setSelectedProduct(null);
+          await ProductService.delete(productId); 
+          const updatedProducts = products.filter((p) => p.id !== productId);
+          setProducts(updatedProducts);
+          setSelectedProduct(null);
         } catch (error) {
-            console.error('Error deleting product:', error);
+          console.error('Error deleting product:', error);
         }
+    };
+
+    const openConfirmModal = (product) => {
+        setProductToDelete(product); // Establece el producto que se desea eliminar
+        setIsModalOpen(true);
+    };
+    
+    const confirmDeleteProduct = () => {
+    if (productToDelete) {
+        handleProductDelete(productToDelete.id);
+    }
+    setIsModalOpen(false);
     };
 
     // Filtrar acciones en función de los permisos del usuario
     const getActions = () => {
         const actions = [];
-        if (user?.authorities.includes('Product.create')) {
-            actions.push({
-                label: "Add",
-                onClick: () => setSelectedProduct({})
-            });
-        }
         if (user?.authorities.includes('Product.update')) {
             actions.push({
-                label: "Edit",
+                label: "Editar",
+                icon: <EditIcon className="h-4 w-4"/>,
                 onClick: (product) => setSelectedProduct(product),
             });
         }
         if (user?.authorities.includes('Product.delete')) {
             actions.push({
-                label: "Delete",
-                onClick: (product) => {
-                    if (window.confirm('Are you sure you want to delete this product?')) {
-                        handleProductDelete(product.id);
-                    }
-                },
+                label: "Eliminar",
+                icon: <DeleteIcon className="h-4 w-4"/>,
+                onClick: (product) => openConfirmModal(product),
             });
         }
         return actions;
@@ -110,9 +119,11 @@ export default function Products() {
                 <div className="grid gap-4 md:gap-8">
                     <div className="flex justify-between items-center">
                         <h1 className="text-2xl font-bold">Products</h1>
-                        <Button variant="primary" onClick={() => setSelectedProduct({})}>
-                            Add Product
-                        </Button>
+                        {user?.authorities.includes('Product.create') && (
+                            <Button variant="primary" onClick={() => setSelectedProduct({})}>
+                               Crear
+                            </Button>
+                        )}
                     </div>
                     <Card>
                         <CardContent>
@@ -121,6 +132,14 @@ export default function Products() {
                     </Card>
                 </div>
             )}
+            {/* Modal de Confirmación */}
+            <ConfirmModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onConfirm={confirmDeleteProduct}
+                title="Confirmar eliminación"
+                message="¿Estás seguro de que deseas eliminar este producto?"
+            />
         </main>
     );
 }
