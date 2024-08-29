@@ -99,11 +99,12 @@ export default function Products() {
 
     const columns = [
         { name: "id", label: "ID" },
+        {name: "code", label: "Código"},
         { name: "name", label: "Nombre" },
         { name: "price", label: "Precio" },
         { name: "stock", label: "Stock" },
         { name: "category.name", label: "Categoría" },
-        { name: "createdBy.username", label: "Creado por" },
+        // { name: "createdBy.username", label: "Creado por" },
     ];
 
     return (
