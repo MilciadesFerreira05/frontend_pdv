@@ -1,10 +1,10 @@
 import axiosInstance from './axiosConfig';
 
-class CategoryService {
-  // Método para obtener la lista de todas las categorías con paginación
-  async getAllCategories({ page = 0, size = 10 } = {}) {
+class ClientService {
+  // Método para obtener la lista de todos los clientes con paginación
+  async getAllClients({ page = 0, size = 10 } = {}) {
     try {
-      const response = await axiosInstance.get('/categories', {
+      const response = await axiosInstance.get('/clients', {
         params: { page, size }, // Parámetros de paginación
         headers: {
           'Content-Type': 'application/json'
@@ -12,51 +12,54 @@ class CategoryService {
       });
       return response.data; // Retorna los datos de la respuesta
     } catch (error) {
-      console.error('Error fetching categories:', error);
+      console.error('Error fetching clients:', error);
       throw error; // Lanza el error para manejarlo en otro lugar si es necesario
     }
   }
 
-  async save(category) {
+  // Método para guardar un nuevo cliente
+  async save(client) {
     try {
-      const response = await axiosInstance.post('/categories', category, {
+      const response = await axiosInstance.post('/clients', client, {
         headers: {
           'Content-Type': 'application/json'
         }
       });
       return response.data;
     } catch (error) {
-      console.error('Error saving category:', error);
+      console.error('Error saving client:', error);
       throw error;
     }
   }
 
-  async update(id, category) {
+  // Método para actualizar un cliente existente
+  async update(id, client) {
     try {
-      const response = await axiosInstance.put(`/categories/${id}`, category, {
+      const response = await axiosInstance.put(`/clients/${id}`, client, {
         headers: {
           'Content-Type': 'application/json'
         }
       });
       return response.data;
     } catch (error) {
-      console.error('Error updating category:', error);
+      console.error('Error updating client:', error);
       throw error;
     }
   }
 
+  // Método para eliminar un cliente
   async delete(id) {
     try {
-      await axiosInstance.delete(`/categories/${id}`, {
+      await axiosInstance.delete(`/clients/${id}`, {
         headers: {
           'Content-Type': 'application/json'
         }
       });
     } catch (error) {
-      console.error('Error deleting category:', error);
+      console.error('Error deleting client:', error);
       throw error;
     }
   }
 }
 
-export default new CategoryService();
+export default new ClientService();

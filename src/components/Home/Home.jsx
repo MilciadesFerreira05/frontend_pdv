@@ -7,6 +7,8 @@ import Categories from '../Categories';
 import Clients from '../Clients';
 import Login from '../Auth/Login';
 import { AuthContext } from '../../services/Auth/AuthContext';
+import Suppliers from '../Supliers';
+import Form from '../PurchaseProducts/form';
 
 const Home = () => {
   const { isAuthenticated } = useContext(AuthContext);
@@ -35,6 +37,9 @@ const Home = () => {
               <Route path="/products" component={Products} />
               <Route path="/categories" component={Categories} />
               <Route path="/clients" component={Clients} />
+              <Route path="/suppliers" component={Suppliers} />
+              <Route path="/purchases" component={Form} />
+            
             </Switch>
           </div>
         </div>

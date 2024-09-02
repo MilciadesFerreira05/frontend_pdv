@@ -5,33 +5,42 @@ import { TableData } from '../ui/table';
 import Form from './form';
 import { DeleteIcon, EditIcon } from '../ui/icons';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
-import { AuthContext } from '../../services/Auth/AuthContext'; // Asegúrate de importar el contexto de autenticación correctamente
-import CategoryService from '../../services/CategoryService'; // Importar el servicio de categorías
+import { AuthContext } from '../../services/Auth/AuthContext';
+import CategoryService from '../../services/CategoryService';
 
 export default function Categories() {
     const [categories, setCategories] = useState([]);
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [categoryToDelete, setCategoryToDelete] = useState(null);
-    const { user } = useContext(AuthContext); // Obtener los permisos del usuario desde el contexto
+    const [currentPage, setCurrentPage] = useState(0); // Página actual
+    const [pageSize] = useState(10); // Tamaño de página
+    const [totalElements, setTotalElements] = useState(0); // Total de elementos
+    const { user } = useContext(AuthContext);
+
+    const fetchCategories = async (page) => {
+        try {
+            const response = await CategoryService.getAllCategories({ page, size: pageSize });
+            setCategories(response.content); // Asumiendo que la respuesta tiene un campo 'content' con las categorías
+            setTotalElements(response.totalElements); // Asumiendo que la respuesta tiene un campo 'totalElements'
+        } catch (error) {
+            console.error('Error fetching categories:', error);
+        }
+    };
 
     useEffect(() => {
-        // Cargar categorías desde la API
-        const fetchCategories = async () => {
-            try {
-                const data = await CategoryService.getAllCategories(); // Llamada al servicio
-                setCategories(data);
-            } catch (error) {
-                console.error('Error fetching categories:', error);
-            }
-        };
+        fetchCategories(currentPage); // Llamada a la función de carga de categorías
+    }, [currentPage]);
 
-        fetchCategories();
-    }, []);
+    const handlePageChange = (newPage) => {
+        if (newPage >= 0 && newPage < Math.ceil(totalElements / pageSize)) {
+            setCurrentPage(newPage); // Actualizar la página actual
+        }
+    };
 
     const handleCategoryCreate = async (newCategory) => {
         try {
-            const createdCategory = await CategoryService.save(newCategory); // Llamada al servicio para crear la categoría
+            const createdCategory = await CategoryService.save(newCategory);
             setCategories([...categories, createdCategory]);
             setSelectedCategory(null);
         } catch (error) {
@@ -41,7 +50,7 @@ export default function Categories() {
 
     const handleCategoryUpdate = async (updatedCategory) => {
         try {
-            const category = await CategoryService.update(updatedCategory.id, updatedCategory); // Llamada al servicio para actualizar la categoría
+            const category = await CategoryService.update(updatedCategory.id, updatedCategory);
             const updatedCategories = categories.map((cat) =>
                 cat.id === updatedCategory.id ? category : cat
             );
@@ -54,7 +63,7 @@ export default function Categories() {
 
     const handleCategoryDelete = async (categoryId) => {
         try {
-            await CategoryService.delete(categoryId); // Llamada al servicio para eliminar la categoría
+            await CategoryService.delete(categoryId);
             const updatedCategories = categories.filter((category) => category.id !== categoryId);
             setCategories(updatedCategories);
             setSelectedCategory(null);
@@ -64,7 +73,7 @@ export default function Categories() {
     };
 
     const openConfirmModal = (category) => {
-        setCategoryToDelete(category); // Establece la categoría que se desea eliminar
+        setCategoryToDelete(category);
         setIsModalOpen(true);
     };
 
@@ -75,7 +84,6 @@ export default function Categories() {
         setIsModalOpen(false);
     };
 
-    // Filtrar acciones en función de los permisos del usuario
     const getActions = () => {
         const actions = [];
         if (user?.authorities.includes('Category.update')) {
@@ -122,12 +130,18 @@ export default function Categories() {
                     </div>
                     <Card>
                         <CardContent>
-                            <TableData data={categories} columns={columns} actions={getActions()} />
+                            <TableData 
+                                data={categories} 
+                                columns={columns} 
+                                actions={getActions()} 
+                                totalElements={totalElements}
+                                pageSize={pageSize}
+                                onPageChange={handlePageChange}
+                            />
                         </CardContent>
                     </Card>
                 </div>
             )}
-            {/* Modal de Confirmación */}
             <ConfirmModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
