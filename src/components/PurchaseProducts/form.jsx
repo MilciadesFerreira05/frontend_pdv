@@ -9,7 +9,7 @@ import Select from "react-select";
 import ProductService from "../../services/ProductService";
 import SupplierService from "./../../services/SupplierService";
 
-const Form = () => {
+const PurchaseProductsForm = () => {
   const [suppliers, setSuppliers] = useState([]);
   const [products, setProducts] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
@@ -260,4 +260,4 @@ const Form = () => {
   );
 };
 
-export default Form;
+export default PurchaseProductsForm;
