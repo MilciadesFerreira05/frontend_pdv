@@ -8,8 +8,8 @@ import Clients from '../Clients';
 import Login from '../Auth/Login';
 import { AuthContext } from '../../services/Auth/AuthContext';
 import Suppliers from '../Supliers';
-import PurchaseProductsForm from '../PurchaseProducts/form';
 import Roles from '../Roles';
+import PurchaseProducts from '../PurchaseProducts';
 
 const Home = () => {
   const { isAuthenticated } = useContext(AuthContext);
@@ -39,7 +39,7 @@ const Home = () => {
               <Route path="/categories" component={Categories} />
               <Route path="/clients" component={Clients} />
               <Route path="/suppliers" component={Suppliers} />
-              <Route path="/purchases" component={PurchaseProductsForm} />
+              <Route path="/purchases" component={PurchaseProducts} />
               <Route path="/roles" component={Roles} />
 
             

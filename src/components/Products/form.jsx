@@ -75,6 +75,7 @@ const Form = ({ selectedProduct, handleProductUpdate, handleProductCreate, setPr
         <CardContent>
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
               <div className="grid gap-2">
                 <Label htmlFor="code">Código</Label>
                 <Input
@@ -129,18 +130,23 @@ const Form = ({ selectedProduct, handleProductUpdate, handleProductCreate, setPr
                   defaultValue={selectedProduct?.iva || ''}
                 />
               </div>
-              <div className="grid gap-2 ">
-                <Checkbox
+              <div className="grid gap-2">
+                <div className="flex items-center mt-5"> {/* Cambiar 32 a un valor más adecuado si es necesario */}
+                  <Checkbox
                     id="stockControl"
                     name="stockControl"
                     defaultChecked={selectedProduct?.stockControl || false}
-                />
-                <Label htmlFor="stockControl" className="ml-2">Controlar Stock?</Label>
+                  />
+                  <Label htmlFor="stockControl" className="ml-2">
+                    Controlar Stock?
+                  </Label>
+                </div>
               </div>
 
               <div className="col-span-2 flex justify-end">
                 <Button type="submit">{isNewProduct ? 'Crear' : 'Guardar'}</Button>
               </div>
+              
             </div>
           </form>
         </CardContent>
