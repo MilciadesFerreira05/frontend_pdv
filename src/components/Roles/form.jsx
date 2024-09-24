@@ -39,7 +39,7 @@ const RoleForm = ({ selectedRole, permissions, handleRoleUpdate, handleRoleCreat
                     <span className="sr-only">Regresar</span>
                 </Button>
                 <h1 className="text-2xl font-bold">
-                    {selectedRole ? 'Editar Rol' : 'Crear Rol'}
+                    {selectedRole.id ? 'Editar Rol' : 'Crear Rol'}
                 </h1>
             </div>
             <Card>
@@ -101,7 +101,7 @@ const RoleForm = ({ selectedRole, permissions, handleRoleUpdate, handleRoleCreat
                                                                     id={`permission_${permission.id}`}
                                                                     name={`permission_${permission.id}`}
                                                                     defaultChecked={
-                                                                        selectedRole?.permissions?.includes(permission.id) || false
+                                                                        selectedRole?.permissions?.some(p => p.id === permission.id) || false
                                                                     }
                                                                 />
                                                             </td>

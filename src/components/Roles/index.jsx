@@ -22,7 +22,7 @@ export default function Roles() {
     const fetchRoles = async (page) => {
         try {
             const response = await RoleService.getAllRoles({ page, size: pageSize });
-            setRoles(response.content); // Asumiendo que la respuesta tiene un campo 'content' con los roles
+            setRoles(response.content); // Asumiendo que la respuesta tiene un campo 'content' con los roles          
             setTotalElements(response.totalElements); // Asumiendo que la respuesta tiene un campo 'totalElements'
         } catch (error) {
             console.error('Error fetching roles:', error);
