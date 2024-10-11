@@ -1,141 +1,180 @@
-import { useEffect, useState } from 'react';
-import { Link, Router } from 'wouter';
-import { Input } from '@/components/ui/input';
+import { useEffect, useState, useContext } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { TableData } from '../ui/table';
-import {
-	ArrowLeftIcon,
-	ClipboardIcon,
-	Package2Icon,
-	PackageIcon,
-	PlusIcon,
-	SearchIcon,
-	SettingsIcon,
-	UsersIcon,
-	XIcon,
-} from '@/components/ui/icons';
-import { getProducts } from '../../services/api';
-import Sidebar from '../ui/sidebar';
-import Navbar from '../ui/navbar';
+import { PlusIcon, DeleteIcon, EditIcon, SearchIcon } from '../ui/icons';
 import Form from './form';
+import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import UserService from '../../services/UserService'; 
+import { AuthContext } from '../../services/Auth/AuthContext';
+import { Input } from '../ui/input';
 
-export default function Products() {
-	const [products, setProducts] = useState([]);
-	const [selectedProduct, setSelectedProduct] = useState(null);
-	const [sidebarOpen, setSidebarOpen] = useState(false);
+export default function Users() {
+    const [users, setUsers] = useState([]);
+    const [filteredUsers, setFilteredUsers] = useState([]); // Estado para usuarios filtrados
+    const [selectedUser, setSelectedUser] = useState(null);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [userToDelete, setUserToDelete] = useState(null);
+    const [currentPage, setCurrentPage] = useState(0); 
+    const [pageSize] = useState(10); 
+    const [totalElements, setTotalElements] = useState(0); 
+    const { user } = useContext(AuthContext);
+    const [searchTerm, setSearchTerm] = useState(""); // Estado para la barra de búsqueda
 
-	//   useEffect(() => {
-	//     const fetchProducts = async () => {
-	//       const products = await getProducts();
-	//       setProducts(products);
-	//     };
-	//     fetchProducts();
-	//   }, []);
+    const fetchUsers = async (page) => {
+        try {
+            const response = await UserService.getAllUsers({ page, size: pageSize });
+            setUsers(response.content); 
+            setTotalElements(response.totalElements); 
+            setFilteredUsers(response.content); // Inicializar también los usuarios filtrados
+        } catch (error) {
+            console.error('Error fetching users:', error);
+        }
+    };
 
-	const handleProductSelect = (product) => {
-		setSelectedProduct(product);
-	};
+    useEffect(() => {
+        fetchUsers(currentPage); // Llamada a la función de carga de usuarios
+    }, [currentPage]);
 
-	const handleProductCreate = (newProduct) => {
-		setProducts([...products, newProduct]);
-		setSelectedProduct(null);
-	};
+    useEffect(() => {
+        // Filtrar usuarios basados en el término de búsqueda
+        const filtered = users.filter(user => {
+            const searchLower = searchTerm.toLowerCase();
+            return (
+                user.username.toLowerCase().includes(searchLower) ||
+                user.email.toLowerCase().includes(searchLower) ||
+                user.role.name.toLowerCase().includes(searchLower)
+            );
+        });
+        setFilteredUsers(filtered);
+    }, [searchTerm, users]); // Dependencias: término de búsqueda y lista de usuarios
 
-	const columns = [
-		{ name: "id", label: "ID" },
-		{ name: "name", label: "Nombre" },
-		{ name: "price", label: "Precio" },
-		{ name: "stock", label: "Stock" },
-		{ name: "category.name", label: "Categoría" },
-		{ name: "user.username", label: "Creado por" },
-	];
+    const handlePageChange = (newPage) => {
+        setCurrentPage(newPage); // Actualizar la página actual
+    };
 
-	const fakeData = [
-		{
-			id: 1,
-			name: "Producto 1",
-			price: 10.99,
-			description: "Descripción del producto 1",
-			stock: 10,
-			category: { name: "Categoria 1" },
-			user: { username: "Usuario 1" },
-		},
-		{
-			id: 2,
-			name: "Producto 2",
-			price: 20.99,
-			description: "Descripción del Producto 2",
-			stock: 20,
-			category: { name: "Categoria 2" },
-			user: { username: "Usuario 2" },
-		},
-		{
-			id: 3,
-			name: "Producto 3",
-			price: 30.99,
-			description: "Descripción del Producto 3",
-			stock: 30,
-			category: { name: "Categoria 3" },
-			user: { username: "Usuario 3" },
-		},
-	];
+    const handleUserCreate = async (newUser) => {
+        try {
+            const createdUser = await UserService.save(newUser);
+            setUsers([...users, createdUser]);
+            setSelectedUser(null);
+        } catch (error) {
+            console.error('Error creating user:', error);
+        }
+    };
 
-	const actions = [
-		{
-			label: "Edit",
-			onClick: (product) => {
-				setSelectedProduct(product);
-			},
-		},
-		{
-			label: "Delete",
-			onClick: (product) => {
-				const updatedProducts = products.filter((p) => p.id !== product.id);
-				setProducts(updatedProducts);
-				setSelectedProduct(null);
-			},
-		},
-	];
+    const handleUserUpdate = async (updatedUser) => {
+        try {
+            const user = await UserService.update(updatedUser.id, updatedUser);
+            const updatedUsers = users.map((u) => 
+                u.id === updatedUser.id ? user : u
+            );
+            setUsers(updatedUsers);
+            setSelectedUser(null);
+        } catch (error) {
+            console.error('Error updating user:', error);
+        }
+    };
 
-	const handleProductUpdate = (updatedProduct) => {
-		const updatedProducts = products.map((product) => (product.id === updatedProduct.id ? updatedProduct : product));
-		setProducts(updatedProducts);
-		setSelectedProduct(null);
-	};
+    const handleUserDelete = async (userId) => {
+        try {
+            await UserService.delete(userId);
+            const updatedUsers = users.filter((u) => u.id !== userId);
+            setUsers(updatedUsers);
+            setSelectedUser(null);
+        } catch (error) {
+            console.error('Error deleting user:', error);
+        }
+    };
 
-	const toggleSidebar = () => {
-		setSidebarOpen(!sidebarOpen);
-	};
+    const openConfirmModal = (user) => {
+        setUserToDelete(user);
+        setIsModalOpen(true);
+    };
+    
+    const confirmDeleteUser = () => {
+        if (userToDelete) {
+            handleUserDelete(userToDelete.id);
+        }
+        setIsModalOpen(false);
+    };
 
-	return (
-		<Router>
-			<div className="grid min-h-screen w-full grid-cols-1 lg:grid-cols-[280px_1fr]">
-				<Sidebar isOpen={sidebarOpen} toggleSidebar={toggleSidebar} />
-				<div className="flex flex-col">
-					<Navbar toggleSidebar={toggleSidebar} />
-					<main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-						{
-							selectedProduct ?
-								<Form selectedProduct={selectedProduct} handleProductUpdate={handleProductUpdate} handleProductCreate={handleProductCreate} setProduct={setSelectedProduct}/>
-								:
-								<div className="grid gap-4 md:gap-8">
-									<div className="flex justify-between items-center">
-										<h1 className="text-2xl font-bold">Products</h1>
-										<Button variant="primary" onClick={() => setSelectedProduct({})}>
-											Add Product
-										</Button>
-									</div>
-									<Card>
-										<CardContent>
-											<TableData data={fakeData} columns={columns} actions={actions} />
-										</CardContent>
-									</Card>
-								</div>
-						}
-					</main>
-				</div>
-			</div>
-		</Router>
-	);
+    const getActions = () => {
+        const actions = [];
+        if (user?.authorities.includes('User.update')) {
+            actions.push({
+                label: "Editar",
+                icon: <EditIcon className="h-4 w-4"/>,
+                onClick: (user) => setSelectedUser(user),
+            });
+        }
+        if (user?.authorities.includes('User.delete')) {
+            actions.push({
+                label: "Eliminar",
+                icon: <DeleteIcon className="h-4 w-4"/>,
+                onClick: (user) => openConfirmModal(user),
+            });
+        }
+        return actions;
+    };
+
+    const columns = [
+        { name: "id", label: "ID" },
+        { name: "username", label: "Usuario" },
+        { name: "email", label: "Email" },
+        { name: "role.name", label: "Rol" },
+    ];
+
+    return (
+        <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
+            {selectedUser ? (
+                <Form
+                    selectedUser={selectedUser}
+                    handleUserUpdate={handleUserUpdate}
+                    handleUserCreate={handleUserCreate}
+                    setUser={setSelectedUser}
+                />
+            ) : (
+                <div className="grid gap-4 md:gap-8">
+                    <div className="flex justify-between items-center">
+                        <div className="relative w-80">
+                            <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                type="search"
+                                placeholder="Búsqueda"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full bg-background shadow-none appearance-none pl-8 md:w-2/3 lg:w-3/3"
+                            />
+                        </div>
+                        {user?.authorities.includes('User.create') && (
+                            <Button variant="primary" onClick={() => setSelectedUser({})}>
+                                <PlusIcon className="h-4 w-4 mr-1" /> Crear Usuario
+                            </Button>
+                        )}
+                    </div>
+
+                    <Card>
+                        <CardContent>
+                            <TableData 
+                                data={filteredUsers} // Usar usuarios filtrados
+                                columns={columns} 
+                                actions={getActions()} 
+                                totalElements={totalElements}
+                                pageSize={pageSize}
+                                onPageChange={handlePageChange}
+                            />
+                        </CardContent>
+                    </Card>
+                </div>
+            )}
+            <ConfirmModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onConfirm={confirmDeleteUser}
+                title="Confirmar eliminación"
+                message="¿Estás seguro de que deseas eliminar este usuario?"
+            />
+        </main>
+    );
 }

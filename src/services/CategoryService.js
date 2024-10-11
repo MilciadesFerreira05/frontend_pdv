@@ -1,7 +1,22 @@
 import axiosInstance from './axiosConfig';
 
 class CategoryService {
-  // Método para obtener la lista de todas las categorías con paginación
+
+ 
+  async getCategories() {
+    try {
+      const response = await axiosInstance.get('/categories/unpaged', {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      return response.data; 
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+      throw error; 
+    }
+  }
+
   async getAllCategories({ page = 0, size = 10 } = {}) {
     try {
       const response = await axiosInstance.get('/categories', {

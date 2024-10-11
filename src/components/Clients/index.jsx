@@ -2,28 +2,31 @@ import { useEffect, useState, useContext } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { TableData } from '../ui/table';
-import { PlusIcon, DeleteIcon, EditIcon } from '../ui/icons';
+import { PlusIcon, DeleteIcon, EditIcon, SearchIcon } from '../ui/icons';
 import Form from './form';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
-import ClientService from '../../services/ClientService'; // Asegúrate de que este servicio exista
+import ClientService from '../../services/ClientService'; 
 import { AuthContext } from '../../services/Auth/AuthContext';
+import { Input } from '../ui/input';
 
 export default function Clients() {
     const [clients, setClients] = useState([]);
+    const [filteredClients, setFilteredClients] = useState([]); // Estado para clientes filtrados
     const [selectedClient, setSelectedClient] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [clientToDelete, setClientToDelete] = useState(null);
-    const [currentPage, setCurrentPage] = useState(0); // Estado para la página actual
-    const [pageSize] = useState(10); // Tamaño de página
-    const [totalElements, setTotalElements] = useState(0); // Estado para el total de elementos
+    const [currentPage, setCurrentPage] = useState(0); 
+    const [pageSize] = useState(10); 
+    const [totalElements, setTotalElements] = useState(0); 
     const { user } = useContext(AuthContext);
+    const [searchTerm, setSearchTerm] = useState(""); // Estado para la barra de búsqueda
 
-    // Mover la función fetchClients antes del useEffect
     const fetchClients = async (page) => {
         try {
             const response = await ClientService.getAllClients({ page, size: pageSize });
-            setClients(response.content); // Asumiendo que la respuesta tiene un campo 'content' con los clientes
-            setTotalElements(response.totalElements); // Asumiendo que la respuesta tiene un campo 'totalElements'
+            setClients(response.content); 
+            setTotalElements(response.totalElements); 
+            setFilteredClients(response.content); // Inicializar también los clientes filtrados
         } catch (error) {
             console.error('Error fetching clients:', error);
         }
@@ -32,6 +35,21 @@ export default function Clients() {
     useEffect(() => {
         fetchClients(currentPage); // Llamada a la función de carga de clientes
     }, [currentPage]);
+
+    useEffect(() => {
+        // Filtrar clientes basados en el término de búsqueda
+        const filtered = clients.filter(client => {
+            const searchLower = searchTerm.toLowerCase();
+            return (
+                client.name.toLowerCase().includes(searchLower) ||
+                client.phone.toLowerCase().includes(searchLower) ||
+                client.address.toLowerCase().includes(searchLower) ||
+                client.ruc.toLowerCase().includes(searchLower) ||
+                client.email.toLowerCase().includes(searchLower)
+            );
+        });
+        setFilteredClients(filtered);
+    }, [searchTerm, clients]); // Dependencias: término de búsqueda y lista de clientes
 
     const handlePageChange = (newPage) => {
         setCurrentPage(newPage); // Actualizar la página actual
@@ -109,7 +127,6 @@ export default function Clients() {
         { name: "address", label: "Dirección" },
         { name: "ruc", label: "RUC" },
         { name: "email", label: "Email" },
-        { name: "user.username", label: "Creado por" },
     ];
 
     return (
@@ -124,17 +141,27 @@ export default function Clients() {
             ) : (
                 <div className="grid gap-4 md:gap-8">
                     <div className="flex justify-between items-center">
-                        <h1 className="text-2xl font-bold">Clientes</h1>
+                        <div className="relative w-80">
+                            <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                type="search"
+                                placeholder="Búsqueda"
+                                value={searchTerm}
+                                onChange={(e) => setSearchTerm(e.target.value)}
+                                className="w-full bg-background shadow-none appearance-none pl-8 md:w-2/3 lg:w-3/3"
+                            />
+                        </div>
                         {user?.authorities.includes('Client.create') && (
                             <Button variant="primary" onClick={() => setSelectedClient({})}>
-                                <PlusIcon className="h-4 w-4" /> Crear cliente
+                                <PlusIcon className="h-4 w-4 mr-1" /> Crear Cliente
                             </Button>
                         )}
                     </div>
+
                     <Card>
                         <CardContent>
                             <TableData 
-                                data={clients} 
+                                data={filteredClients} // Usar clientes filtrados
                                 columns={columns} 
                                 actions={getActions()} 
                                 totalElements={totalElements}

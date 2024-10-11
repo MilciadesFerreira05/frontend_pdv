@@ -5,12 +5,12 @@ import { useContext } from "react";
 import { AuthContext } from "./../../services/Auth/AuthContext"; // Asegúrate de importar tu contexto de autenticación
 
 const menuItems = [
-  { path: "/products", text: "Productos", icon: <PackageIcon className="h-4 w-4" />, permission: "Product.all" },
-  { path: "/categories", text: "Categorías", icon: <ClipboardIcon className="h-4 w-4" />, permission: "Category.all" },
-  { path: "/clients", text: "Clientes", icon: <UsersIcon className="h-4 w-4" />, permission: "Client.all" },
-  { path: "/suppliers", text: "Proveedores", icon: <CurrenciesIcon className="h-4 w-4" />, permission: "Supplier.all" },
   { path: "/sales", text: "Ventas", icon: <ClipboardIcon className="h-4 w-4" />, permission: "ProductSale.all" },
   { path: "/purchases", text: "Compras", icon: <ClipboardIcon className="h-4 w-4" />, permission: "ProductPurchase.all" },
+  { path: "/products", text: "Productos", icon: <PackageIcon className="h-4 w-4" />, permission: "Product.all" },
+  { path: "/clients", text: "Clientes", icon: <UsersIcon className="h-4 w-4" />, permission: "Client.all" },
+  { path: "/suppliers", text: "Proveedores", icon: <CurrenciesIcon className="h-4 w-4" />, permission: "Supplier.all" },
+  { path: "/categories", text: "Categorías", icon: <ClipboardIcon className="h-4 w-4" />, permission: "Category.all" },
   { path: "/roles", text: "Roles", icon: <SettingsIcon className="h-4 w-4" />, permission: "Role.all" },
   { path: "/users", text: "Usuarios", icon: <UsersIcon className="h-4 w-4" />, permission: "User.all" }
 ];
@@ -27,7 +27,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
     <div className={`border-r bg-muted/40 ${isOpen ? 'block' : 'hidden'} lg:block`}>
       <div className="flex h-full max-h-screen flex-col gap-2">
         <div className="flex h-[60px] items-center border-b px-6">
-          <Link to="/products" className="flex items-center gap-2 font-semibold">
+          <Link to="/" className="flex items-center gap-2 font-semibold">
             <Package2Icon className="h-6 w-6" />
             <span className="">Punto de venta</span>
           </Link>

@@ -18,8 +18,6 @@ const RoleForm = ({ selectedRole, permissions, handleRoleUpdate, handleRoleCreat
         acc[module].push(permission);
         return acc;
     }, {});
-
-    console.log(selectedRole);
     
 
     const toggleModule = (module) => {
@@ -56,10 +54,13 @@ const RoleForm = ({ selectedRole, permissions, handleRoleUpdate, handleRoleCreat
                                 name: formData.get('name'),
                                 permissions: permissions
                                     .filter((perm) => formData.get(`permission_${perm.id}`) === 'on')
-                                    .map((perm) => perm.id),
+                                    .map((perm) => ({
+                                        id: perm.id,
+                                    })),
                             };
-                            selectedRole ? handleRoleUpdate(updatedRole) : handleRoleCreate(updatedRole);
+                            selectedRole.id ? handleRoleUpdate(updatedRole) : handleRoleCreate(updatedRole);
                         }}
+                        
                     >
                         <div className="grid gap-4">
                             <div className="grid gap-2">

@@ -37,26 +37,26 @@ const Form = ({ selectedClient, handleClientUpdate, handleClientCreate, setClien
                             phone: formData.get('phone'),
                             email: formData.get('email'),
                         }
-                        selectedClient ? handleClientUpdate(Client) : handleClientCreate(Client)
+                        Client.id === null ? handleClientUpdate(Client) : handleClientCreate(Client)
                     }}
                 >
 
                     <div className="grid gap-4">
                         <div className="grid gap-2">
                             <Label htmlFor="name">Nombre Completo</Label>
-                            <Input id="name" type="text" defaultValue={selectedClient.name} />
+                            <Input id="name" name="name" type="text" defaultValue={selectedClient.name} />
                         </div>
                         <div className="grid grid-cols-2 gap-4">
                             <div className="grid gap-2">
                                 <Label htmlFor="ruc">RUC</Label>
                                 <Input
-                                    id="ruc" type="text" defaultValue={selectedClient.ruc}
+                                    id="ruc" name="ruc" type="text" defaultValue={selectedClient.ruc}
                                 />
                             </div>
                             <div className="grid gap-2">
                                 <Label htmlFor="phone">Telefono</Label>
                                 <Input
-                                    id="phone" type="number" defaultValue={selectedClient.phone}
+                                    id="phone" type="number" name="phone" defaultValue={selectedClient.phone}
                                 />
                             </div>
                         </div>
@@ -65,6 +65,7 @@ const Form = ({ selectedClient, handleClientUpdate, handleClientCreate, setClien
                             <Input
                                 id="address"
                                 type="text"
+                                name="address"
                                 defaultValue={selectedClient.address}
                             />
                         </div>
@@ -73,11 +74,12 @@ const Form = ({ selectedClient, handleClientUpdate, handleClientCreate, setClien
                             <Input
                                 id="email"
                                 type="email"
+                                name="email"
                                 defaultValue={selectedClient.email}
                             />
                         </div>
                         <div className="flex justify-end">
-                            <Button type="submit">Save</Button>
+                            <Button type="submit">Guardar</Button>
                         </div>
                     </div>
                 </form>

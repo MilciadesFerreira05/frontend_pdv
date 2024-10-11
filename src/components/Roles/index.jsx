@@ -3,13 +3,15 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { TableData } from '../ui/table';
 import RoleForm from './form'; // Componente para crear/modificar roles
-import { DeleteIcon, EditIcon } from '../ui/icons';
+import { DeleteIcon, EditIcon, PlusIcon, SearchIcon } from '../ui/icons';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { AuthContext } from '../../services/Auth/AuthContext';
 import RoleService from '../../services/RoleService'; // Servicio para gestionar roles
+import { Input } from '../ui/input';
 
 export default function Roles() {
     const [roles, setRoles] = useState([]);
+	const [filteredRoles, setFilteredRoles] = useState([]); // Estado para roles filtrados
 	const [permissions, setPermissions] = useState([]);
     const [selectedRole, setSelectedRole] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -17,12 +19,14 @@ export default function Roles() {
     const [currentPage, setCurrentPage] = useState(0); // Página actual
     const [pageSize] = useState(10); // Tamaño de página
     const [totalElements, setTotalElements] = useState(0); // Total de elementos
+    const [searchQuery, setSearchQuery] = useState(''); // Estado para la búsqueda
     const { user } = useContext(AuthContext);
 
     const fetchRoles = async (page) => {
         try {
             const response = await RoleService.getAllRoles({ page, size: pageSize });
-            setRoles(response.content); // Asumiendo que la respuesta tiene un campo 'content' con los roles          
+            setRoles(response.content); // Asumiendo que la respuesta tiene un campo 'content' con los roles
+            setFilteredRoles(response.content); // Inicialmente los roles filtrados son todos los roles          
             setTotalElements(response.totalElements); // Asumiendo que la respuesta tiene un campo 'totalElements'
         } catch (error) {
             console.error('Error fetching roles:', error);
@@ -56,6 +60,7 @@ export default function Roles() {
         try {
             const createdRole = await RoleService.save(newRole);
             setRoles([...roles, createdRole]);
+            setFilteredRoles([...roles, createdRole]); // Actualizar también roles filtrados
             setSelectedRole(null);
         } catch (error) {
             console.error('Error creating role:', error);
@@ -67,6 +72,7 @@ export default function Roles() {
             const role = await RoleService.update(updatedRole.id, updatedRole);
             const updatedRoles = roles.map((r) => (r.id === updatedRole.id ? role : r));
             setRoles(updatedRoles);
+            setFilteredRoles(updatedRoles); // Actualizar también roles filtrados
             setSelectedRole(null);
         } catch (error) {
             console.error('Error updating role:', error);
@@ -78,6 +84,7 @@ export default function Roles() {
             await RoleService.delete(roleId);
             const updatedRoles = roles.filter((role) => role.id !== roleId);
             setRoles(updatedRoles);
+            setFilteredRoles(updatedRoles); // Actualizar también roles filtrados
             setSelectedRole(null);
         } catch (error) {
             console.error('Error deleting role:', error);
@@ -121,6 +128,21 @@ export default function Roles() {
         { name: "description", label: "Descripción" },
     ];
 
+    // Función para manejar la búsqueda
+    const handleSearch = (event) => {
+        const searchQuery = event.target.value;
+        setSearchQuery(searchQuery);
+
+        // Filtrar roles por cualquier campo
+        const filtered = roles.filter((role) => {
+            return Object.values(role).some((value) => 
+                value && value.toString().toLowerCase().includes(searchQuery.toLowerCase())
+            );
+        });
+        
+        setFilteredRoles(filtered);
+    };
+
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
             {selectedRole ? (
@@ -134,17 +156,26 @@ export default function Roles() {
             ) : (
                 <div className="grid gap-4 md:gap-8">
                     <div className="flex justify-between items-center">
-                        <h1 className="text-2xl font-bold">Roles</h1>
+                        <div className="relative w-80">
+                            <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                type="search"
+                                placeholder="Búsqueda"
+                                value={searchQuery}
+                                onChange={handleSearch} // Escuchar cambios en el input
+                                className="w-full bg-background shadow-none appearance-none pl-8 md:w-2/3 lg:w-3/3"
+                            />
+                        </div>
                         {user?.authorities.includes('Role.create') && (
                             <Button variant="primary" onClick={() => setSelectedRole({})}>
-                                Crear Rol
+                               <PlusIcon className="h-4 w-4 mr-1" /> Crear Rol
                             </Button>
                         )}
                     </div>
                     <Card>
                         <CardContent>
                             <TableData 
-                                data={roles} 
+                                data={filteredRoles} 
                                 columns={columns} 
                                 actions={getActions()} 
                                 totalElements={totalElements}

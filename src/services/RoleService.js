@@ -17,6 +17,20 @@ class RoleService {
     }
   }
 
+  async getRoles() {
+    try {
+      const response = await axiosInstance.get('/roles/unpaged', {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      return response.data; // Retorna los datos de la respuesta
+    } catch (error) {
+      console.error('Error fetching roles:', error);
+      throw error; // Lanza el error para manejarlo en otro lugar si es necesario
+    }
+  }
+
   async save(role) {
     try {
       const response = await axiosInstance.post('/roles', role, {

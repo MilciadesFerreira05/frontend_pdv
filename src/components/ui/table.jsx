@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { MenuIcon } from './icons';
 
 const TableData = ({ data = [], columns = [], actions = [], totalElements = 0, pageSize = 10, onPageChange }) => {
@@ -17,9 +17,10 @@ const TableData = ({ data = [], columns = [], actions = [], totalElements = 0, p
         <>
             <Table>
                 <TableHeader>
+                    {/* Encabezado de la tabla */}
                     <TableRow>
                         {columns?.map((c, index) => (
-                            <TableHead key={index}>{c.label}</TableHead>
+                            <TableHead key={index} className={c.align ? `text-${c.align}` : ''}>{c.label}</TableHead>
                         ))}
                         <TableHead>Acciones</TableHead>
                     </TableRow>
@@ -28,35 +29,25 @@ const TableData = ({ data = [], columns = [], actions = [], totalElements = 0, p
                     {data?.map((d, index) => (
                         <TableRow key={index}>
                             {columns?.map((c1, index) => (
-                                <TableCell key={index}>
+                                <TableCell key={index} className={c1.align ? `text-${c1.align}` : ''}>
                                     {c1.name.includes(".")
-                                        ? d[c1.name.split(".")[0]][c1.name.split(".")[1]]
-                                        : d[c1.name]}
+                                        ? // Verificar si la columna tiene un callback y aplicarlo
+                                          c1.callback
+                                            ? c1.callback(d[c1.name.split(".")[0]][c1.name.split(".")[1]])
+                                            : d[c1.name.split(".")[0]][c1.name.split(".")[1]]
+                                        : c1.callback
+                                            ? c1.callback(d[c1.name])
+                                            : d[c1.name]}
                                 </TableCell>
                             ))}
                             <TableCell>
-                                <details className="dropdown">
-                                    <summary className="btn m-1 btn-sm">
-                                        <MenuIcon className="h-4 w-4" />
-                                        Opciones
-                                    </summary>
-                                    <ul className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow z-[1]">
-                                        {actions?.map((a, index) => (
-                                            <li key={index}>
-                                                <a onClick={() => a.onClick(d)}>
-                                                    {a.icon ? a.icon : null}
-                                                    {a.label}
-                                                </a>
-                                            </li>
-                                        ))}
-                                    </ul>
-                                </details>
+                                <Dropdown actions={actions} rowData={d} />
                             </TableCell>
                         </TableRow>
                     ))}
                 </TableBody>
             </Table>
-            
+
             {/* Controles de Paginación */}
             <div className="flex justify-between items-center mt-4">
                 <button 
@@ -79,6 +70,47 @@ const TableData = ({ data = [], columns = [], actions = [], totalElements = 0, p
     );
 };
 
+// Componente Dropdown
+const Dropdown = ({ actions, rowData }) => {
+    const dropdownRef = useRef(null); // Referencia al dropdown
+
+    // Manejo de clics fuera del dropdown
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                // Cierra el dropdown si se hace clic fuera de él
+                dropdownRef.current.open = false; // Cierra el dropdown
+            }
+        };
+
+        document.addEventListener("mousedown", handleClickOutside);
+        
+        return () => {
+            document.removeEventListener("mousedown", handleClickOutside);
+        };
+    }, []);
+
+    return (
+        <details ref={dropdownRef} className="dropdown">
+            <summary className="btn m-1 btn-sm">
+                <MenuIcon className="h-4 w-4" />
+                Opciones
+            </summary>
+            <ul className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+                {actions?.map((a, index) => (
+                    <li key={index}>
+                        <a onClick={() => a.onClick(rowData)}>
+                            {a.icon ? a.icon : null}
+                            {a.label}
+                        </a>
+                    </li>
+                ))}
+            </ul>
+        </details>
+    );
+};
+
+// Componentes auxiliares de la tabla
 const Table = ({ children, className = '' }) => {
     return <table className={`min-w-full divide-y divide-gray-200 ${className}`}>{children}</table>;
 };

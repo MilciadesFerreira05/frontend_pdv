@@ -5,24 +5,27 @@ import { TableData } from '../ui/table';
 import ProductService from '../../services/ProductService';
 import Form from './form';
 import { AuthContext } from '../../services/Auth/AuthContext';
-import { DeleteIcon, EditIcon } from '../ui/icons';
+import { DeleteIcon, EditIcon, MenuIcon, PlusIcon, SearchIcon } from '../ui/icons';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
+import { Input } from '../ui/input';
 
 export default function Products() {
     const [products, setProducts] = useState([]);
+    const [filteredProducts, setFilteredProducts] = useState([]); // Para la lista filtrada
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [productToDelete, setProductToDelete] = useState(null);
     const [currentPage, setCurrentPage] = useState(0); // Estado para la página actual
     const [pageSize] = useState(10); // Tamaño de página
     const [totalElements, setTotalElements] = useState(0); // Estado para el total de elementos
+    const [searchQuery, setSearchQuery] = useState(''); // Estado para la búsqueda
     const { user } = useContext(AuthContext);
 
-    // Mover la función fetchProducts antes del useEffect
     const fetchProducts = async (page) => {
         try {
             const response = await ProductService.getAllProducts({ page, size: pageSize });
             setProducts(response.content); // Asumiendo que la respuesta tiene un campo 'content' con los productos
+            setFilteredProducts(response.content); // Inicialmente mostrar todos los productos
             setTotalElements(response.totalElements); // Asumiendo que la respuesta tiene un campo 'totalElements'
         } catch (error) {
             console.error('Error fetching products:', error);
@@ -41,6 +44,7 @@ export default function Products() {
         try {
             const createdProduct = await ProductService.save(newProduct);
             setProducts([...products, createdProduct]);
+            setFilteredProducts([...products, createdProduct]); // Actualizar lista filtrada
             setSelectedProduct(null);
         } catch (error) {
             console.error('Error creating product:', error);
@@ -54,6 +58,7 @@ export default function Products() {
                 p.id === updatedProduct.id ? product : p
             );
             setProducts(updatedProducts);
+            setFilteredProducts(updatedProducts); // Actualizar lista filtrada
             setSelectedProduct(null);
         } catch (error) {
             console.error('Error updating product:', error);
@@ -65,6 +70,7 @@ export default function Products() {
             await ProductService.delete(productId);
             const updatedProducts = products.filter((p) => p.id !== productId);
             setProducts(updatedProducts);
+            setFilteredProducts(updatedProducts); // Actualizar lista filtrada
             setSelectedProduct(null);
         } catch (error) {
             console.error('Error deleting product:', error);
@@ -106,10 +112,23 @@ export default function Products() {
         { name: "id", label: "ID" },
         { name: "code", label: "Código" },
         { name: "name", label: "Nombre" },
-        { name: "price", label: "Precio" },
-        { name: "stock", label: "Stock" },
+        { name: "price", label: "Precio",  callback: (total) => new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'PYG' }).format(total).replace('PYG', '₲'), align: 'right' },
+        { name: "stock", label: "Stock", align: 'right'},
         { name: "category.name", label: "Categoría" },
     ];
+
+    // Función para manejar la búsqueda
+    const handleSearch = (event) => {
+        const searchQuery = event.target.value;
+        setSearchQuery(searchQuery);
+
+        // Filtrar productos por el nombre o código (agregando validación)
+        const filtered = products.filter((product) => 
+            (product.name && product.name.toLowerCase().includes(searchQuery.toLowerCase())) ||
+            (product.code && product.code.toLowerCase().includes(searchQuery.toLowerCase()))
+        );
+        setFilteredProducts(filtered);
+    };
 
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
@@ -123,17 +142,35 @@ export default function Products() {
             ) : (
                 <div className="grid gap-4 md:gap-8">
                     <div className="flex justify-between items-center">
-                        <h1 className="text-2xl font-bold">Products</h1>
-                        {user?.authorities.includes('Product.create') && (
-                            <Button variant="primary" onClick={() => setSelectedProduct({})}>
-                                Crear
-                            </Button>
-                        )}
+                        <div className="relative w-80">
+                            <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                type="search"
+                                placeholder="Búsqueda"
+                                value={searchQuery}
+                                onChange={handleSearch} // Escuchar cambios en el input
+                                className="w-full bg-background shadow-none appearance-none pl-8 md:w-2/3 lg:w-3/3"
+                            />
+                        </div>      
+                        <div className="flex gap-2">
+                            {user?.authorities.includes('Product.read') && (
+                                <Button key={1} variant="primary"  >
+                                    <MenuIcon className="h-4 w-4 mr-1" />Reporte
+                                </Button>
+                            )}
+                            {user?.authorities.includes('Product.create') && (
+                                <Button key={2} variant="primary" onClick={() => setSelectedProduct({})}>
+                                    <PlusIcon className="h-4 w-4 mr-1" /> Crear Producto
+                                </Button>
+                            )}
+                            
+                        </div>                      
+
                     </div>
                     <Card>
                         <CardContent>
                             <TableData 
-                                data={products} 
+                                data={filteredProducts} // Mostrar solo productos filtrados
                                 columns={columns} 
                                 actions={getActions()} 
                                 totalElements={totalElements}

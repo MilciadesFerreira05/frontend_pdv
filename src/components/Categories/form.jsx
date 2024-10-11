@@ -65,7 +65,7 @@ const Form = ({ selectedCategory, handleCategoryUpdate, handleCategoryCreate, se
                 />
               </div>
               <div className="flex justify-end">
-                <Button type="submit">{isNewCategory ? 'Crear' : 'Guardar'}</Button>
+                <Button type="submit">Guardar</Button>
               </div>
             </div>
           </form>

@@ -16,12 +16,9 @@ const Form = ({ selectedProduct, handleProductUpdate, handleProductCreate, setPr
   useEffect(() => {
     const fetchCategories = async () => {
       try {
-        const data = await CategoryService.getAllCategories();
-        const options = data.map(category => ({
-          value: category.id,
-          label: category.name
-        }));
-        setCategories(options);
+        const data = await CategoryService.getCategories();
+        console.log(data);
+        setCategories(data);
       } catch (error) {
         console.error('Error fetching categories:', error);
       }
@@ -30,21 +27,37 @@ const Form = ({ selectedProduct, handleProductUpdate, handleProductCreate, setPr
     fetchCategories();
   }, []);
 
+  // Actualiza el estado del formulario
+  const [formValues, setFormValues] = useState({
+    code: selectedProduct?.code || '',
+    name: selectedProduct?.name || '',
+    description: selectedProduct?.description || '',
+    category: selectedProduct?.category || null,
+    price: selectedProduct?.price || '',
+    iva: selectedProduct?.iva || '',
+    stockControl: selectedProduct?.stockControl || false
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value, type, checked } = e.target;
+    setFormValues({
+      ...formValues,
+      [name]: type === 'checkbox' ? checked : value
+    });
+  };
+
+  const handleCategoryChange = (selectedOption) => {
+    setFormValues({ ...formValues, category: selectedOption });
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    const formData = new FormData(e.target);
-
-    console.log(formData);
     
     const updatedProduct = {
       id: selectedProduct?.id,
-      code: formData.get('code'),
-      name: formData.get('name'),
-      description: formData.get('description'),
-      category: { id: formData.get('category_id') },
-      price: parseFloat(formData.get('price')),
-      iva: parseInt(formData.get('iva')),
-      stockControl: formData.get('stockControl') === 'on'
+      ...formValues,
+      price: parseFloat(formValues.price),
+      iva: parseInt(formValues.iva),
     };
 
     if (isNewProduct) {
@@ -75,14 +88,14 @@ const Form = ({ selectedProduct, handleProductUpdate, handleProductCreate, setPr
         <CardContent>
           <form onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
               <div className="grid gap-2">
                 <Label htmlFor="code">Código</Label>
                 <Input
                   id="code"
                   name="code"
                   type="text"
-                  defaultValue={selectedProduct?.code || ''}
+                  value={formValues.code}
+                  onChange={handleInputChange}
                 />
               </div>
               <div className="grid gap-2">
@@ -91,7 +104,8 @@ const Form = ({ selectedProduct, handleProductUpdate, handleProductCreate, setPr
                   id="name"
                   name="name"
                   type="text"
-                  defaultValue={selectedProduct?.name || ''}
+                  value={formValues.name}
+                  onChange={handleInputChange}
                 />
               </div>
               <div className="col-span-2">
@@ -99,7 +113,8 @@ const Form = ({ selectedProduct, handleProductUpdate, handleProductCreate, setPr
                 <Textarea
                   id="description"
                   name="description"
-                  defaultValue={selectedProduct?.description || ''}
+                  value={formValues.description}
+                  onChange={handleInputChange}
                 />
               </div>
               <div className="grid gap-2">
@@ -107,7 +122,10 @@ const Form = ({ selectedProduct, handleProductUpdate, handleProductCreate, setPr
                 <Select
                   options={categories}
                   id="category_id"
-                  defaultValue={categories.find(option => option.value === selectedProduct?.category?.id)}
+                  getOptionLabel={(option) => option.name}
+                  getOptionValue={(option) => option.id}
+                  value={formValues.category} 
+                  onChange={handleCategoryChange} 
                   name="category_id"
                 />
               </div>
@@ -118,7 +136,8 @@ const Form = ({ selectedProduct, handleProductUpdate, handleProductCreate, setPr
                   name="price"
                   type="number"
                   step="0.01"
-                  defaultValue={selectedProduct?.price || ''}
+                  value={formValues.price}
+                  onChange={handleInputChange}
                 />
               </div>
               <div className="grid gap-2">
@@ -127,15 +146,17 @@ const Form = ({ selectedProduct, handleProductUpdate, handleProductCreate, setPr
                   id="iva"
                   name="iva"
                   type="number"
-                  defaultValue={selectedProduct?.iva || ''}
+                  value={formValues.iva}
+                  onChange={handleInputChange}
                 />
               </div>
               <div className="grid gap-2">
-                <div className="flex items-center mt-5"> {/* Cambiar 32 a un valor más adecuado si es necesario */}
+                <div className="flex items-center mt-5">
                   <Checkbox
                     id="stockControl"
                     name="stockControl"
-                    defaultChecked={selectedProduct?.stockControl || false}
+                    checked={formValues.stockControl}
+                    onChange={handleInputChange} // Usar el manejador de cambios
                   />
                   <Label htmlFor="stockControl" className="ml-2">
                     Controlar Stock?
@@ -146,7 +167,6 @@ const Form = ({ selectedProduct, handleProductUpdate, handleProductCreate, setPr
               <div className="col-span-2 flex justify-end">
                 <Button type="submit">{isNewProduct ? 'Crear' : 'Guardar'}</Button>
               </div>
-              
             </div>
           </form>
         </CardContent>

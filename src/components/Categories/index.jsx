@@ -3,38 +3,42 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { TableData } from '../ui/table';
 import Form from './form';
-import { DeleteIcon, EditIcon } from '../ui/icons';
+import { DeleteIcon, EditIcon, MenuIcon, PlusIcon, SearchIcon } from '../ui/icons';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { AuthContext } from '../../services/Auth/AuthContext';
 import CategoryService from '../../services/CategoryService';
+import { Input } from '../ui/input';
 
 export default function Categories() {
     const [categories, setCategories] = useState([]);
+    const [filteredCategories, setFilteredCategories] = useState([]); // Para la lista filtrada
     const [selectedCategory, setSelectedCategory] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [categoryToDelete, setCategoryToDelete] = useState(null);
-    const [currentPage, setCurrentPage] = useState(0); // Página actual
-    const [pageSize] = useState(10); // Tamaño de página
-    const [totalElements, setTotalElements] = useState(0); // Total de elementos
+    const [currentPage, setCurrentPage] = useState(0);
+    const [pageSize] = useState(10);
+    const [totalElements, setTotalElements] = useState(0);
+    const [searchQuery, setSearchQuery] = useState(''); // Estado para la búsqueda
     const { user } = useContext(AuthContext);
 
     const fetchCategories = async (page) => {
         try {
             const response = await CategoryService.getAllCategories({ page, size: pageSize });
-            setCategories(response.content); // Asumiendo que la respuesta tiene un campo 'content' con las categorías
-            setTotalElements(response.totalElements); // Asumiendo que la respuesta tiene un campo 'totalElements'
+            setCategories(response.content);
+            setFilteredCategories(response.content); // Inicialmente mostrar todas
+            setTotalElements(response.totalElements);
         } catch (error) {
             console.error('Error fetching categories:', error);
         }
     };
 
     useEffect(() => {
-        fetchCategories(currentPage); // Llamada a la función de carga de categorías
+        fetchCategories(currentPage);
     }, [currentPage]);
 
     const handlePageChange = (newPage) => {
         if (newPage >= 0 && newPage < Math.ceil(totalElements / pageSize)) {
-            setCurrentPage(newPage); // Actualizar la página actual
+            setCurrentPage(newPage);
         }
     };
 
@@ -42,6 +46,7 @@ export default function Categories() {
         try {
             const createdCategory = await CategoryService.save(newCategory);
             setCategories([...categories, createdCategory]);
+            setFilteredCategories([...categories, createdCategory]); // Actualizar lista filtrada
             setSelectedCategory(null);
         } catch (error) {
             console.error('Error creating category:', error);
@@ -55,6 +60,7 @@ export default function Categories() {
                 cat.id === updatedCategory.id ? category : cat
             );
             setCategories(updatedCategories);
+            setFilteredCategories(updatedCategories); // Actualizar lista filtrada
             setSelectedCategory(null);
         } catch (error) {
             console.error('Error updating category:', error);
@@ -66,6 +72,7 @@ export default function Categories() {
             await CategoryService.delete(categoryId);
             const updatedCategories = categories.filter((category) => category.id !== categoryId);
             setCategories(updatedCategories);
+            setFilteredCategories(updatedCategories); // Actualizar lista filtrada
             setSelectedCategory(null);
         } catch (error) {
             console.error('Error deleting category:', error);
@@ -109,6 +116,18 @@ export default function Categories() {
         { name: "description", label: "Descripción" },
     ];
 
+    // Función para manejar la búsqueda
+    const handleSearch = (event) => {
+        const searchQuery = event.target.value;
+        setSearchQuery(searchQuery);
+
+        // Filtrar categorías por el nombre (agregando validación)
+        const filtered = categories.filter((category) => 
+            category.name && category.name.toLowerCase().includes(searchQuery.toLowerCase())
+        );
+        setFilteredCategories(filtered);
+    };
+
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
             {selectedCategory ? (
@@ -120,18 +139,36 @@ export default function Categories() {
                 />
             ) : (
                 <div className="grid gap-4 md:gap-8">
+                    {/*                     <Toolbar 
+                        dataArray={categories} 
+                        setDataArray={setCategories} 
+                        searchableColumns={["id", "name", "description"]} 
+                        buttons={getToolButtons()}
+                    /> */}
                     <div className="flex justify-between items-center">
-                        <h1 className="text-2xl font-bold">Categorías</h1>
-                        {user?.authorities.includes('Category.create') && (
-                            <Button variant="primary" onClick={() => setSelectedCategory({})}>
-                                Crear Categoría
-                            </Button>
-                        )}
+                        <div className="relative w-80">
+                            <SearchIcon className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
+                            <Input
+                                type="search"
+                                placeholder="Búsqueda"
+                                value={searchQuery}
+                                onChange={handleSearch} // Escuchar cambios en el input
+                                className="w-full bg-background shadow-none appearance-none pl-8 md:w-2/3 lg:w-3/3"
+                            />
+                        </div>
+                        <div className="flex gap-2">
+
+                            {user?.authorities.includes('Category.create') && (
+                                <Button key={2} variant="primary" onClick={() => setSelectedCategory({})}>
+                                    <PlusIcon className="h-4 w-4 mr-1" />Crear Categoría
+                                </Button>
+                            )}
+                        </div>
                     </div>
                     <Card>
                         <CardContent>
                             <TableData 
-                                data={categories} 
+                                data={filteredCategories} // Mostrar solo categorías filtradas
                                 columns={columns} 
                                 actions={getActions()} 
                                 totalElements={totalElements}

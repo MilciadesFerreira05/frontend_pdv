@@ -1,96 +1,139 @@
+import React, { useEffect, useState } from 'react';
 import { Button } from '../ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card';
 import { ArrowLeftIcon } from '../ui/icons';
-import {Label} from '../ui/label';
-import {Input} from '../ui/input';
-import {Textarea} from '../ui/textarea';
-import Select from 'react-select'
+import { Label } from '../ui/label';
+import { Input } from '../ui/input';
+import Select from 'react-select';
+import RoleService from '../../services/RoleService'; // Asegúrate de tener un servicio para manejar roles
 
-const Form = ({ selectedProduct, handleProductUpdate, handleProductCreate, setProduct}) => {
-    const options = [
-        { value: 'chocolate', label: 'Chocolate' },
-        { value: 'strawberry', label: 'Strawberry' },
-        { value: 'vanilla', label: 'Vanilla' }
-      ];
+const UserForm = ({ selectedUser, handleUserUpdate, handleUserCreate, setUser }) => {
+  const [roles, setRoles] = useState([]);
+  const [isNewUser, setIsNewUser] = useState(Object.keys(selectedUser).length === 0);
 
-    return <div className="grid gap-4 md:gap-8">
-        <div className="flex items-center">
-            <Button
-                variant="outline"
-                size="icon"
-                className="mr-4"
-                onClick={() => setProduct(null)}
-            >
-                <ArrowLeftIcon className="h-4 w-4" />
-                <span className="sr-only">Back</span>
-            </Button>
-            <h1 className="text-2xl font-bold">{selectedProduct.name}</h1>
-        </div>
-        <Card>
-            <CardHeader>
-                <CardTitle>Product Details</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <form
-                    onSubmit={(e) => {
-                        e.preventDefault()
-                        const formData = new FormData(e.target)
-                        const updatedProduct = {
-                            id: selectedProduct.id,
-                            name: formData.get('name'),
-                            description: formData.get('description'),
-                            category_id: formData.get('category_id'),
-                            price: parseFloat(formData.get('price')),
-                            stock: parseInt(formData.get('stock')),
-                        }
-                        handleProductUpdate(updatedProduct)
-                    }}
-                >
-                    <div className="grid gap-4">
-                        <div className="grid gap-2">
-                            <Label htmlFor="name">Name</Label>
-                            <Input id="name" type="text" defaultValue={selectedProduct.name} />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="description">Description</Label>
-                            <Textarea
-                                id="description"
-                                defaultValue={selectedProduct.description}
-                            />
-                        </div>
-                        <div className="grid gap-2">
-                            <Label htmlFor="category_id">Category</Label>
+  useEffect(() => {
+    const fetchRoles = async () => {
+      try {
+        const data = await RoleService.getRoles(); // Obtener roles
+        setRoles(data);
+      } catch (error) {
+        console.error('Error fetching roles:', error);
+      }
+    };
 
-                            <Select options={options} isMulti />
-                        </div>
-                        <div className="grid grid-cols-2 gap-4">
-                            <div className="grid gap-2">
-                                <Label htmlFor="price">Price</Label>
-                                <Input
-                                    id="price"
-                                    type="number"
-                                    step="0.01"
-                                    defaultValue={selectedProduct.price}
-                                />
-                            </div>
-                            <div className="grid gap-2">
+    fetchRoles();
+  }, []);
 
-                                <Label htmlFor="stock">IVA %</Label>
-                                <Input
-                                    id="iva"
-                                    type="number"
-                                    defaultValue={selectedProduct.iva}
-                                />
-                            </div>
-                        </div>
-                        <div className="flex justify-end">
-                            <Button type="submit">Save</Button>
-                        </div>
-                    </div>
-                </form>
-            </CardContent>
-        </Card>
+  // Actualiza el estado del formulario
+  const [formValues, setFormValues] = useState({
+    username: selectedUser?.username || '',
+    email: selectedUser?.email || '',
+    password: selectedUser?.password || '',
+    role: selectedUser?.role || null,
+  });
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormValues({
+      ...formValues,
+      [name]: value
+    });
+  };
+
+  const handleRoleChange = (selectedOption) => {
+    setFormValues({ ...formValues, role: selectedOption });
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    
+    const updatedUser = {
+      id: selectedUser?.id,
+      ...formValues,
+    };
+
+    if (isNewUser) {
+      handleUserCreate(updatedUser);
+    } else {
+      handleUserUpdate(updatedUser);
+    }
+  };
+
+  return (
+    <div className="grid gap-4 md:gap-8">
+      <div className="flex items-center">
+        <Button
+          variant="outline"
+          size="icon"
+          className="mr-4"
+          onClick={() => setUser(null)}
+        >
+          <ArrowLeftIcon className="h-4 w-4" />
+          <span className="sr-only">Back</span>
+        </Button>
+        <h1 className="text-2xl font-bold">{isNewUser ? 'Crear Usuario' : selectedUser.username}</h1>
+      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle>{isNewUser ? 'Crear Usuario' : 'Editar Usuario'}</CardTitle>
+        </CardHeader>
+        <CardContent>
+          <form onSubmit={handleSubmit}>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="username">Username</Label>
+                <Input
+                  id="username"
+                  name="username"
+                  type="text"
+                  value={formValues.username}
+                  onChange={handleInputChange}
+                  autoComplete="off"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  name="email"
+                  type="email"
+                  value={formValues.email}
+                  onChange={handleInputChange}
+                  autoComplete="off"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="password">Password</Label>
+                <Input
+                  id="password"
+                  name="password"
+                  type="password"
+                  value={formValues.password}
+                  onChange={handleInputChange}
+                  autoComplete="new-password"
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="role">Rol</Label>
+                <Select
+                  options={roles}
+                  id="role"
+                  getOptionLabel={(option) => option.name}
+                  getOptionValue={(option) => option.id}
+                  value={formValues.role}
+                  onChange={handleRoleChange}
+                  name="role"
+                />
+              </div>
+              <div className="col-span-2 flex justify-end">
+                <Button type="submit">{isNewUser ? 'Crear' : 'Guardar'}</Button>
+              </div>
+            </div>
+          </form>
+        </CardContent>
+      </Card>
     </div>
-}
+  );
+};
 
-export default Form
+export default UserForm;
