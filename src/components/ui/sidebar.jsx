@@ -31,9 +31,6 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
             <Package2Icon className="h-6 w-6" />
             <span className="">Punto de venta</span>
           </Link>
-          <button onClick={toggleSidebar} className="ml-auto">
-            <XIcon className="h-6 w-6" />
-          </button>
         </div>
         <div className="flex-1 overflow-auto py-2">
           <nav className="grid items-start px-4 text-sm font-medium">

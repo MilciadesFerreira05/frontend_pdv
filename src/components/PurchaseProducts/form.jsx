@@ -174,10 +174,11 @@ const PurchaseProductsForm = ({ selectedPurchase, handlePurchaseUpdate, handlePu
     }
 
     const purchase = {
+      id: isNewPurchase ? null : selectedPurchase.id,
       date: formData.get("date"),
       supplier: selectedSupplier,
       invoiceNumber: formData.get("invoice"),
-      products: selectedProducts.map((p) => ({
+      items: selectedProducts.map((p) => ({
         ...p,
         quantity: Number(p.quantity),
         price: Number(p.price),
@@ -226,7 +227,7 @@ const PurchaseProductsForm = ({ selectedPurchase, handlePurchaseUpdate, handlePu
                   id="date"
                   name="date"
                   type="date"
-                  value={ selectedPurchase?.date || new Date().toISOString().split("T")[0]}
+                  defaultValue={ selectedPurchase?.date || new Date().toISOString().split("T")[0]}
                 />
               </div>
               <div className="grid gap-2">
@@ -248,7 +249,7 @@ const PurchaseProductsForm = ({ selectedPurchase, handlePurchaseUpdate, handlePu
                   name="invoice"
                   type="text"
                   placeholder=""
-                  value={ selectedPurchase?.invoiceNumber || ''}
+                  defaultValue={ selectedPurchase?.invoiceNumber || ''}
                 />
               </div>
             </div>

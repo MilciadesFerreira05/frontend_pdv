@@ -13,6 +13,7 @@ import PurchaseProducts from '../PurchaseProducts';
 import Dashboard from './Dashboard';
 import Users from '../Users';
 import QuickAccess from './QuickAccess';
+import SaleProducts from '../SaleProducts';
 
 const Home = () => {
   const { isAuthenticated } = useContext(AuthContext);
@@ -51,6 +52,7 @@ const Home = () => {
             <RouteWithTitle path="/clients" title="Clientes" Component={Clients} />
             <RouteWithTitle path="/suppliers" title="Proveedores" Component={Suppliers} />
             <RouteWithTitle path="/purchases" title="Compras" Component={PurchaseProducts} />
+            <RouteWithTitle path="/sales" title="Ventas" Component={SaleProducts} />
             <RouteWithTitle path="/roles" title="Roles" Component={Roles} />
             <RouteWithTitle path="/Users" title="Usuarios" Component={Users} />
           </Switch>

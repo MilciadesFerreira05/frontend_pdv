@@ -1,11 +1,11 @@
-import React, { useRef, useEffect } from "react";
-import { Link } from "wouter";
+import React, { useRef, useEffect, useContext} from "react";
 import { ArrowLeftIcon, LogoutIcon, Package2Icon, SearchIcon } from "./icons";
-import { Input } from "./input";
 import { UsersIcon } from './icons';
+import { AuthContext } from "../../services/Auth/AuthContext";
 
 const Navbar = ({title}) => {
   const dropdownRef = useRef(null); // Referencia al dropdown
+  const { user } = useContext(AuthContext); 
 
   // Manejo de clics fuera del dropdown
   useEffect(() => {
@@ -39,7 +39,7 @@ const Navbar = ({title}) => {
       </div>
       <details ref={dropdownRef} className="dropdown dropdown-end">
         <summary className="btn m-1">
-          <UsersIcon /> Admin
+          <UsersIcon /> {user.username}
         </summary>
         <ul className="menu dropdown-content bg-white border border-gray-300 rounded-box z-[1] w-52 p-2 shadow-lg right-0">
           <li>

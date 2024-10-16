@@ -2,107 +2,111 @@ import { useEffect, useState, useContext } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { TableData } from '../ui/table';
-import PurchaseService from '../../services/PurchaseService';
+import SaleService from '../../services/SaleService';
 import Form from './form'; 
 import { AuthContext } from '../../services/Auth/AuthContext';
 import { DeleteIcon, EditIcon, MenuIcon, PlusIcon, SearchIcon } from '../ui/icons';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { Input } from '../ui/input'; // Input para búsqueda
+import SaleProductsReport from './report';
 
-const PurchaseProducts = () => {
-    const [purchases, setPurchases] = useState([]);
-    const [filteredPurchases, setFilteredPurchases] = useState([]); // Para la lista filtrada
-    const [selectedPurchase, setSelectedPurchase] = useState(null);
+const SaleProducts = () => {
+    const [sales, setSales] = useState([]);
+    const [filteredSales, setFilteredSales] = useState([]); // Para la lista filtrada
+    const [selectedSale, setSelectedSale] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [purchaseToDelete, setPurchaseToDelete] = useState(null);
+    const [saleToDelete, setSaleToDelete] = useState(null);
     const [currentPage, setCurrentPage] = useState(0);
     const [pageSize] = useState(10);
     const [totalElements, setTotalElements] = useState(0);
     const [searchQuery, setSearchQuery] = useState(''); // Estado para la búsqueda
     const { user } = useContext(AuthContext);
+    const [isReportVisible, setIsReportVisible] = useState(false);
+    
 
-    const fetchPurchases = async (page) => {
+    const fetchSales = async (page) => {
         try {
-            const response = await PurchaseService.getAllPurchases({ page, size: pageSize });
-            setPurchases(response.content);
-            setFilteredPurchases(response.content); // Inicialmente mostrar todas
+            const response = await SaleService.getAllSales({ page, size: pageSize });
+            setSales(response.content);
+            setFilteredSales(response.content); // Inicialmente mostrar todas
             setTotalElements(response.totalElements);
         } catch (error) {
-            console.error('Error fetching purchases:', error);
+            console.error('Error fetching sales:', error);
         }
     };
 
     useEffect(() => {
-        fetchPurchases(currentPage);
+        fetchSales(currentPage);
     }, [currentPage]);
 
     const handlePageChange = (newPage) => {
         setCurrentPage(newPage);
     };
 
-    const handlePurchaseCreate = async (newPurchase) => {
+    const handleSaleCreate = async (newSale) => {
         try {
-            const createdPurchase = await PurchaseService.save(newPurchase);
-            setPurchases((prevPurchases) => [...prevPurchases, createdPurchase]);
-            setFilteredPurchases((prevPurchases) => [...prevPurchases, createdPurchase]); // Actualizar lista filtrada
-            setSelectedPurchase(null); // Limpiar selección después de crear
+            const createdSale = await SaleService.save(newSale);
+            setSales((prevSales) => [...prevSales, createdSale]);
+            setFilteredSales((prevSales) => [...prevSales, createdSale]); // Actualizar lista filtrada
+            setSelectedSale(null); // Limpiar selección después de crear
         } catch (error) {
-            console.error('Error creating purchase:', error);
+            console.error('Error creating sale:', error);
         }
     };
 
-    const handlePurchaseUpdate = async (updatedPurchase) => {
+    const handleSaleUpdate = async (updatedSale) => {
+        console.log( updatedSale);
         try {
-            const purchase = await PurchaseService.update(updatedPurchase.id, updatedPurchase);
-            const updatedPurchases = purchases.map((p) =>
-                p.id === updatedPurchase.id ? purchase : p
+            const sale = await SaleService.update(updatedSale.id, updatedSale);
+            const updatedSales = sales.map((p) =>
+                p.id === updatedSale.id ? sale : p
             );
-            setPurchases(updatedPurchases);
-            setFilteredPurchases(updatedPurchases); // Actualizar lista filtrada
-            setSelectedPurchase(null); // Limpiar selección después de actualizar
+            setSales(updatedSales);
+            setFilteredSales(updatedSales); // Actualizar lista filtrada
+            setSelectedSale(null); // Limpiar selección después de actualizar
         } catch (error) {
-            console.error('Error updating purchase:', error);
+            console.error('Error updating sale:', error);
         }
     };
 
-    const handlePurchaseDelete = async (purchaseId) => {
+    const handleSaleDelete = async (saleId) => {
         try {
-            await PurchaseService.delete(purchaseId);
-            const updatedPurchases = purchases.filter((p) => p.id !== purchaseId);
-            setPurchases(updatedPurchases);
-            setFilteredPurchases(updatedPurchases); // Actualizar lista filtrada
-            setSelectedPurchase(null);
+            await SaleService.delete(saleId);
+            const updatedSales = sales.filter((p) => p.id !== saleId);
+            setSales(updatedSales);
+            setFilteredSales(updatedSales); // Actualizar lista filtrada
+            setSelectedSale(null);
         } catch (error) {
-            console.error('Error deleting purchase:', error);
+            console.error('Error deleting sale:', error);
         }
     };
 
-    const openConfirmModal = (purchase) => {
-        setPurchaseToDelete(purchase);
+    const openConfirmModal = (sale) => {
+        setSaleToDelete(sale);
         setIsModalOpen(true);
     };
 
-    const confirmDeletePurchase = () => {
-        if (purchaseToDelete) {
-            handlePurchaseDelete(purchaseToDelete.id);
+    const confirmDeleteSale = () => {
+        if (saleToDelete) {
+            handleSaleDelete(saleToDelete.id);
         }
         setIsModalOpen(false);
     };
 
     const getActions = () => {
         const actions = [];
-        if (user?.authorities.includes('ProductPurchase.update')) {
+        if (user?.authorities.includes('ProductSale.update')) {
             actions.push({
                 label: "Editar",
                 icon: <EditIcon className="h-4 w-4"/>,
-                onClick: (purchase) => setSelectedPurchase(purchase),
+                onClick: (sale) => setSelectedSale(sale),
             });
         }
-        if (user?.authorities.includes('ProductPurchase.delete')) {
+        if (user?.authorities.includes('ProductSale.delete')) {
             actions.push({
                 label: "Eliminar",
                 icon: <DeleteIcon className="h-4 w-4"/>,
-                onClick: (purchase) => openConfirmModal(purchase),
+                onClick: (sale) => openConfirmModal(sale),
             });
         }
         return actions;
@@ -112,7 +116,7 @@ const PurchaseProducts = () => {
         { name: "id", label: "ID" },
         { name: "date", label: "Fecha", callback: (date) => {return new Date(`${date} `).toLocaleDateString('es-ES', { timeZone: 'America/Asuncion' })}},
         { name: "invoiceNumber", label: "Número de Factura" },
-        { name: "supplier.name", label: "Proveedor" },
+        { name: "client.name", label: "Cliente" },
         { name: "total", label: "Total" , callback: (total) => new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'PYG' }).format(total) },
     ];
 
@@ -122,24 +126,26 @@ const PurchaseProducts = () => {
         setSearchQuery(searchQuery);
 
         // Filtrar compras por el nombre del proveedor o el número de factura
-        const filtered = purchases.filter((purchase) => 
-            purchase.supplier.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            purchase.invoiceNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            purchase.date?.toLowerCase().includes(searchQuery.toLowerCase()) 
+        const filtered = sales.filter((sale) => 
+            sale.supplier.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            sale.invoiceNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
+            sale.date?.toLowerCase().includes(searchQuery.toLowerCase()) 
         );
-        setFilteredPurchases(filtered);
+        setFilteredSales(filtered);
     };
 
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-            {selectedPurchase ? (
+            {isReportVisible ?
+                <SaleProductsReport setIsReportVisible={setIsReportVisible} /> :
+            selectedSale ? 
                 <Form
-                    selectedPurchase={selectedPurchase}
-                    handlePurchaseUpdate={handlePurchaseUpdate}
-                    handlePurchaseCreate={handlePurchaseCreate}
-                    setPurchase={setSelectedPurchase}
+                    selectedSale={selectedSale}
+                    handleSaleUpdate={handleSaleUpdate}
+                    handleSaleCreate={handleSaleCreate}
+                    setSale={setSelectedSale}
                 />
-            ) : (
+             : 
                 <div className="grid gap-4 md:gap-8">
                     <div className="flex justify-between items-center">
                         <div className="relative w-80">
@@ -153,13 +159,13 @@ const PurchaseProducts = () => {
                             />
                         </div>
                         <div className="flex gap-2">
-                            {user?.authorities.includes('ProductPurchase.read') && (
-                                <Button key={1} variant="primary"  >
+                            {user?.authorities.includes('ProductSale.read') && (
+                                <Button key={1} variant="primary"  onClick={() => setIsReportVisible(true)} >
                                     <MenuIcon className="h-4 w-4 mr-1" />Reporte
                                 </Button>
                             )}
-                            {user?.authorities.includes('ProductPurchase.create') && (
-                                <Button variant="primary" onClick={() => setSelectedPurchase({})}>
+                            {user?.authorities.includes('ProductSale.create') && (
+                                <Button variant="primary" onClick={() => setSelectedSale({})}>
                                     <PlusIcon className="h-4 w-4 mr-1" /> Crear compra
                                 </Button>
                             )}
@@ -168,7 +174,7 @@ const PurchaseProducts = () => {
                     <Card>
                         <CardContent>
                             <TableData 
-                                data={filteredPurchases} // Mostrar solo compras filtradas
+                                data={filteredSales} // Mostrar solo compras filtradas
                                 columns={columns} 
                                 actions={getActions()} 
                                 totalElements={totalElements}
@@ -178,11 +184,11 @@ const PurchaseProducts = () => {
                         </CardContent>
                     </Card>
                 </div>
-            )}
+            }
             <ConfirmModal
                 isOpen={isModalOpen}
                 onClose={() => setIsModalOpen(false)}
-                onConfirm={confirmDeletePurchase}
+                onConfirm={confirmDeleteSale}
                 title="Confirmar eliminación"
                 message="¿Estás seguro de que deseas eliminar esta compra?"
             />
@@ -190,4 +196,4 @@ const PurchaseProducts = () => {
     );
 };
 
-export default PurchaseProducts;
+export default SaleProducts;

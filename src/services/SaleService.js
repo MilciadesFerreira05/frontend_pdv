@@ -1,10 +1,10 @@
 import axiosInstance from './axiosConfig';
 
-class PurchaseService {
+class SaleService {
   // Método para obtener la lista de todas las compras con paginación
-  async getAllPurchases({ page = 0, size = 10 }) {
+  async getAllSales({ page = 0, size = 10 }) {
     try {
-      const response = await axiosInstance.get('/purchases', {
+      const response = await axiosInstance.get('/sales', {
         params: { page, size }, // Parámetros de paginación
         headers: {
           'Content-Type': 'application/json'
@@ -12,54 +12,54 @@ class PurchaseService {
       });
       return response.data; // Retorna los datos de la respuesta
     } catch (error) {
-      console.error('Error fetching purchases:', error);
+      console.error('Error fetching sales:', error);
       throw error; // Lanza el error para manejarlo en otro lugar si es necesario
     }
   }
 
-  async save(purchase) {
+  async save(sale) {
     try {
-      const response = await axiosInstance.post('/purchases', purchase, {
+      const response = await axiosInstance.post('/sales', sale, {
         headers: {
           'Content-Type': 'application/json'
         }
       });
       return response.data;
     } catch (error) {
-      console.error('Error saving purchase:', error);
+      console.error('Error saving sale:', error);
       throw error;
     }
   }
 
-  async update(id, purchase) {
+  async update(id, sale) {
     try {
-      const response = await axiosInstance.put(`/purchases/${id}`, purchase, {
+      const response = await axiosInstance.put(`/sales/${id}`, sale, {
         headers: {
           'Content-Type': 'application/json'
         }
       });
       return response.data;
     } catch (error) {
-      console.error('Error updating purchase:', error);
+      console.error('Error updating sale:', error);
       throw error;
     }
   }
 
   async delete(id) {
     try {
-      await axiosInstance.delete(`/purchases/${id}`, {
+      await axiosInstance.delete(`/sales/${id}`, {
         headers: {
           'Content-Type': 'application/json'
         }
       });
     } catch (error) {
-      console.error('Error deleting purchase:', error);
+      console.error('Error deleting sale:', error);
       throw error;
     }
   }
   async getReport(desde, hasta) {
     try {
-      const response = await axiosInstance.get('/purchases/report', {
+      const response = await axiosInstance.get('/sales/report', {
         responseType: 'blob', // Para obtener el archivo como Blob
         params: { desde, hasta },
         headers: {
@@ -80,7 +80,6 @@ class PurchaseService {
       throw error;
     }
   }
-  
 }
 
-export default new PurchaseService();
+export default new SaleService();

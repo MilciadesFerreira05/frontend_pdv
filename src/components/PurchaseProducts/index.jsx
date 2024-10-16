@@ -8,6 +8,7 @@ import { AuthContext } from '../../services/Auth/AuthContext';
 import { DeleteIcon, EditIcon, MenuIcon, PlusIcon, SearchIcon } from '../ui/icons';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { Input } from '../ui/input'; // Input para búsqueda
+import PurchaseProductsReport from './report';
 
 const PurchaseProducts = () => {
     const [purchases, setPurchases] = useState([]);
@@ -20,6 +21,8 @@ const PurchaseProducts = () => {
     const [totalElements, setTotalElements] = useState(0);
     const [searchQuery, setSearchQuery] = useState(''); // Estado para la búsqueda
     const { user } = useContext(AuthContext);
+    const [isReportVisible, setIsReportVisible] = useState(false);
+
 
     const fetchPurchases = async (page) => {
         try {
@@ -132,7 +135,9 @@ const PurchaseProducts = () => {
 
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-            {selectedPurchase ? (
+            {isReportVisible ? (
+                <PurchaseProductsReport setIsReportVisible={setIsReportVisible} />
+            ) : selectedPurchase ? (
                 <Form
                     selectedPurchase={selectedPurchase}
                     handlePurchaseUpdate={handlePurchaseUpdate}
@@ -154,7 +159,11 @@ const PurchaseProducts = () => {
                         </div>
                         <div className="flex gap-2">
                             {user?.authorities.includes('ProductPurchase.read') && (
-                                <Button key={1} variant="primary"  >
+                                <Button
+                                    key={1}
+                                    variant="primary"
+                                    onClick={() => setIsReportVisible(true)} // Mostrar el reporte al hacer clic
+                                >
                                     <MenuIcon className="h-4 w-4 mr-1" />Reporte
                                 </Button>
                             )}
@@ -188,6 +197,7 @@ const PurchaseProducts = () => {
             />
         </main>
     );
+    
 };
 
 export default PurchaseProducts;
