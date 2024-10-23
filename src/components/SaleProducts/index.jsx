@@ -5,15 +5,17 @@ import { TableData } from '../ui/table';
 import SaleService from '../../services/SaleService';
 import Form from './form'; 
 import { AuthContext } from '../../services/Auth/AuthContext';
-import { DeleteIcon, EditIcon, MenuIcon, PlusIcon, SearchIcon } from '../ui/icons';
+import { DeleteIcon, EditIcon, MenuIcon, PlusIcon, SearchIcon, ViewIcon } from '../ui/icons';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { Input } from '../ui/input'; // Input para búsqueda
 import SaleProductsReport from './report';
+import SaleProductsView from './view';
 
 const SaleProducts = () => {
     const [sales, setSales] = useState([]);
     const [filteredSales, setFilteredSales] = useState([]); // Para la lista filtrada
     const [selectedSale, setSelectedSale] = useState(null);
+    const [viewSale, setViewSale] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [saleToDelete, setSaleToDelete] = useState(null);
     const [currentPage, setCurrentPage] = useState(0);
@@ -26,7 +28,7 @@ const SaleProducts = () => {
 
     const fetchSales = async (page) => {
         try {
-            const response = await SaleService.getAllSales({ page, size: pageSize });
+            const response = await SaleService.getAllSales({ page, size: pageSize, q: searchQuery });
             setSales(response.content);
             setFilteredSales(response.content); // Inicialmente mostrar todas
             setTotalElements(response.totalElements);
@@ -37,7 +39,7 @@ const SaleProducts = () => {
 
     useEffect(() => {
         fetchSales(currentPage);
-    }, [currentPage]);
+    }, [currentPage, searchQuery]);
 
     const handlePageChange = (newPage) => {
         setCurrentPage(newPage);
@@ -95,6 +97,13 @@ const SaleProducts = () => {
 
     const getActions = () => {
         const actions = [];
+        if (user?.authorities.includes('ProductSale.read')) {
+            actions.push({
+                label: "Ver",
+                icon: <ViewIcon className="h-4 w-4"/>,
+                onClick: (sale) => setViewSale(sale),
+            });
+        }
         if (user?.authorities.includes('ProductSale.update')) {
             actions.push({
                 label: "Editar",
@@ -124,19 +133,14 @@ const SaleProducts = () => {
     const handleSearch = (event) => {
         const searchQuery = event.target.value;
         setSearchQuery(searchQuery);
-
-        // Filtrar compras por el nombre del proveedor o el número de factura
-        const filtered = sales.filter((sale) => 
-            sale.supplier.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            sale.invoiceNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            sale.date?.toLowerCase().includes(searchQuery.toLowerCase()) 
-        );
-        setFilteredSales(filtered);
     };
 
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-            {isReportVisible ?
+            { 
+            viewSale ? 
+                <SaleProductsView selectedSale={viewSale} setSale={setViewSale} /> :
+            isReportVisible ?
                 <SaleProductsReport setIsReportVisible={setIsReportVisible} /> :
             selectedSale ? 
                 <Form

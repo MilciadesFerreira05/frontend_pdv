@@ -5,14 +5,16 @@ import { TableData } from '../ui/table';
 import ProductService from '../../services/ProductService';
 import Form from './form';
 import { AuthContext } from '../../services/Auth/AuthContext';
-import { DeleteIcon, EditIcon, MenuIcon, PlusIcon, SearchIcon } from '../ui/icons';
+import { DeleteIcon, EditIcon, MenuIcon, PlusIcon, SearchIcon, ViewIcon } from '../ui/icons';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { Input } from '../ui/input';
+import ProductView from './view';
 
 export default function Products() {
     const [products, setProducts] = useState([]);
     const [filteredProducts, setFilteredProducts] = useState([]); // Para la lista filtrada
     const [selectedProduct, setSelectedProduct] = useState(null);
+    const [viewProduct, setViewProduct] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [productToDelete, setProductToDelete] = useState(null);
     const [currentPage, setCurrentPage] = useState(0); // Estado para la página actual
@@ -84,6 +86,13 @@ export default function Products() {
 
     const getActions = () => {
         const actions = [];
+        if (user?.authorities.includes('Product.read')) {
+            actions.push({
+                label: "Ver",
+                icon: <ViewIcon className="h-4 w-4"/>,
+                onClick: (product) => setViewProduct(product),
+            });
+        }
         if (user?.authorities.includes('Product.update')) {
             actions.push({
                 label: "Editar",
@@ -125,7 +134,9 @@ export default function Products() {
 
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-            {selectedProduct ? (
+             { viewProduct ? (
+                <ProductView selectedProduct={viewProduct} setProduct={setViewProduct} />
+             ): selectedProduct ? (
                 <Form
                     selectedProduct={selectedProduct}
                     handleProductUpdate={handleProductUpdate}

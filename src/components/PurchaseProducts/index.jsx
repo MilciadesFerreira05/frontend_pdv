@@ -5,15 +5,17 @@ import { TableData } from '../ui/table';
 import PurchaseService from '../../services/PurchaseService';
 import Form from './form'; 
 import { AuthContext } from '../../services/Auth/AuthContext';
-import { DeleteIcon, EditIcon, MenuIcon, PlusIcon, SearchIcon } from '../ui/icons';
+import { DeleteIcon, EditIcon, MenuIcon, PlusIcon, SearchIcon, ViewIcon } from '../ui/icons';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { Input } from '../ui/input'; // Input para búsqueda
 import PurchaseProductsReport from './report';
+import PurchaseProductsView from './view';
 
 const PurchaseProducts = () => {
     const [purchases, setPurchases] = useState([]);
     const [filteredPurchases, setFilteredPurchases] = useState([]); // Para la lista filtrada
     const [selectedPurchase, setSelectedPurchase] = useState(null);
+    const [viewPurchase, setViewPurchase] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [purchaseToDelete, setPurchaseToDelete] = useState(null);
     const [currentPage, setCurrentPage] = useState(0);
@@ -26,7 +28,7 @@ const PurchaseProducts = () => {
 
     const fetchPurchases = async (page) => {
         try {
-            const response = await PurchaseService.getAllPurchases({ page, size: pageSize });
+            const response = await PurchaseService.getAllPurchases({ page, size: pageSize, q: searchQuery });
             setPurchases(response.content);
             setFilteredPurchases(response.content); // Inicialmente mostrar todas
             setTotalElements(response.totalElements);
@@ -37,7 +39,7 @@ const PurchaseProducts = () => {
 
     useEffect(() => {
         fetchPurchases(currentPage);
-    }, [currentPage]);
+    }, [currentPage, searchQuery]);
 
     const handlePageChange = (newPage) => {
         setCurrentPage(newPage);
@@ -94,6 +96,13 @@ const PurchaseProducts = () => {
 
     const getActions = () => {
         const actions = [];
+        if (user?.authorities.includes('ProductPurchase.read')) {
+            actions.push({
+                label: "Ver",
+                icon: <ViewIcon className="h-4 w-4"/>,
+                onClick: (purchase) => setViewPurchase(purchase),
+            });
+        }
         if (user?.authorities.includes('ProductPurchase.update')) {
             actions.push({
                 label: "Editar",
@@ -123,19 +132,13 @@ const PurchaseProducts = () => {
     const handleSearch = (event) => {
         const searchQuery = event.target.value;
         setSearchQuery(searchQuery);
-
-        // Filtrar compras por el nombre del proveedor o el número de factura
-        const filtered = purchases.filter((purchase) => 
-            purchase.supplier.name?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            purchase.invoiceNumber?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-            purchase.date?.toLowerCase().includes(searchQuery.toLowerCase()) 
-        );
-        setFilteredPurchases(filtered);
     };
 
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-            {isReportVisible ? (
+            { viewPurchase ? (
+                <PurchaseProductsView selectedPurchase={viewPurchase} setViewPurchase={setViewPurchase}  />
+            ): isReportVisible ? (
                 <PurchaseProductsReport setIsReportVisible={setIsReportVisible} />
             ) : selectedPurchase ? (
                 <Form

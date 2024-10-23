@@ -2,17 +2,19 @@ import { useEffect, useState, useContext } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { TableData } from '../ui/table';
-import { PlusIcon, DeleteIcon, EditIcon, SearchIcon } from '../ui/icons';
+import { PlusIcon, DeleteIcon, EditIcon, SearchIcon, ViewIcon } from '../ui/icons';
 import Form from './form';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import ClientService from '../../services/ClientService'; 
 import { AuthContext } from '../../services/Auth/AuthContext';
 import { Input } from '../ui/input';
+import ClientDetailsView from './view';
 
 export default function Clients() {
     const [clients, setClients] = useState([]);
     const [filteredClients, setFilteredClients] = useState([]); // Estado para clientes filtrados
     const [selectedClient, setSelectedClient] = useState(null);
+    const [viewClient, setViewClient] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [clientToDelete, setClientToDelete] = useState(null);
     const [currentPage, setCurrentPage] = useState(0); 
@@ -88,11 +90,18 @@ export default function Clients() {
 
     const getActions = () => {
         const actions = [];
+        if (user?.authorities.includes('Client.read')) {
+            actions.push({
+                label: "Ver",
+                icon: <ViewIcon className="h-4 w-4"/>,
+                onClick: (client) => setViewClient(client),
+            });
+        }
         if (user?.authorities.includes('Client.update')) {
             actions.push({
                 label: "Editar",
                 icon: <EditIcon className="h-4 w-4"/>,
-                onClick: (client) => setSelectedClient(client),
+                onClick: (client) => setViewClient(client),
             });
         }
         if (user?.authorities.includes('Client.delete')) {
@@ -116,7 +125,13 @@ export default function Clients() {
 
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-            {selectedClient ? (
+            { viewClient ?(
+                <ClientDetailsView 
+                    selectedClient={viewClient}
+                    setClient={setViewClient}
+                />
+
+            ) : selectedClient ? (
                 <Form
                     selectedClient={selectedClient}
                     handleClientUpdate={handleClientUpdate}

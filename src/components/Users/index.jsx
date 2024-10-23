@@ -2,17 +2,19 @@ import { useEffect, useState, useContext } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { TableData } from '../ui/table';
-import { PlusIcon, DeleteIcon, EditIcon, SearchIcon } from '../ui/icons';
+import { PlusIcon, DeleteIcon, EditIcon, SearchIcon, ViewIcon } from '../ui/icons';
 import Form from './form';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import UserService from '../../services/UserService'; 
 import { AuthContext } from '../../services/Auth/AuthContext';
 import { Input } from '../ui/input';
+import UserView from './view';
 
 export default function Users() {
     const [users, setUsers] = useState([]);
     const [filteredUsers, setFilteredUsers] = useState([]); // Estado para usuarios filtrados
     const [selectedUser, setSelectedUser] = useState(null);
+    const [viewUser, setViewUser] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [userToDelete, setUserToDelete] = useState(null);
     const [currentPage, setCurrentPage] = useState(0); 
@@ -101,6 +103,13 @@ export default function Users() {
 
     const getActions = () => {
         const actions = [];
+        if (user?.authorities.includes('User.read')) {
+            actions.push({
+                label: "Ver",
+                icon: <ViewIcon className="h-4 w-4"/>,
+                onClick: (user) => setViewUser(user),
+            });
+        }
         if (user?.authorities.includes('User.update')) {
             actions.push({
                 label: "Editar",
@@ -127,7 +136,9 @@ export default function Users() {
 
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-            {selectedUser ? (
+            { viewUser ?  (
+                <UserView selectedUser={viewUser} setUser={setViewUser} />
+            ) : selectedUser ? (
                 <Form
                     selectedUser={selectedUser}
                     handleUserUpdate={handleUserUpdate}

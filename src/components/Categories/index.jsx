@@ -3,16 +3,18 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { TableData } from '../ui/table';
 import Form from './form';
-import { DeleteIcon, EditIcon, MenuIcon, PlusIcon, SearchIcon } from '../ui/icons';
+import { DeleteIcon, EditIcon, MenuIcon, PlusIcon, SearchIcon, ViewIcon } from '../ui/icons';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { AuthContext } from '../../services/Auth/AuthContext';
 import CategoryService from '../../services/CategoryService';
 import { Input } from '../ui/input';
+import CategoryView from './view';
 
 export default function Categories() {
     const [categories, setCategories] = useState([]);
     const [filteredCategories, setFilteredCategories] = useState([]); // Para la lista filtrada
     const [selectedCategory, setSelectedCategory] = useState(null);
+    const [viewCategory, setViewCategory] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [categoryToDelete, setCategoryToDelete] = useState(null);
     const [currentPage, setCurrentPage] = useState(0);
@@ -92,7 +94,16 @@ export default function Categories() {
     };
 
     const getActions = () => {
-        const actions = [];
+        const actions = [];  
+
+        if (user?.authorities.includes('Category.read')) {
+            actions.push({
+                label: "Ver",
+                icon: <ViewIcon className="h-4 w-4" />,
+                onClick: (category) => setViewCategory(category),
+            });
+        }
+
         if (user?.authorities.includes('Category.update')) {
             actions.push({
                 label: "Editar",
@@ -100,6 +111,7 @@ export default function Categories() {
                 onClick: (category) => setSelectedCategory(category),
             });
         }
+
         if (user?.authorities.includes('Category.delete')) {
             actions.push({
                 label: "Eliminar",
@@ -107,6 +119,7 @@ export default function Categories() {
                 onClick: (category) => openConfirmModal(category),
             });
         }
+
         return actions;
     };
 
@@ -130,7 +143,12 @@ export default function Categories() {
 
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-            {selectedCategory ? (
+            {viewCategory ? (
+                <CategoryView  
+                    selectedCategory={viewCategory} 
+                    setCategory={setViewCategory}
+                /> 
+            ) : selectedCategory ? (
                 <Form
                     selectedCategory={selectedCategory}
                     handleCategoryUpdate={handleCategoryUpdate}
@@ -139,7 +157,7 @@ export default function Categories() {
                 />
             ) : (
                 <div className="grid gap-4 md:gap-8">
-                    {/*                     <Toolbar 
+                    {/*<Toolbar 
                         dataArray={categories} 
                         setDataArray={setCategories} 
                         searchableColumns={["id", "name", "description"]} 

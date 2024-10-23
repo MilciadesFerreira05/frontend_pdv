@@ -3,17 +3,19 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { TableData } from '../ui/table';
 import RoleForm from './form'; // Componente para crear/modificar roles
-import { DeleteIcon, EditIcon, PlusIcon, SearchIcon } from '../ui/icons';
+import { DeleteIcon, EditIcon, PlusIcon, SearchIcon, ViewIcon } from '../ui/icons';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { AuthContext } from '../../services/Auth/AuthContext';
 import RoleService from '../../services/RoleService'; // Servicio para gestionar roles
 import { Input } from '../ui/input';
+import RoleView from './view';
 
 export default function Roles() {
     const [roles, setRoles] = useState([]);
 	const [filteredRoles, setFilteredRoles] = useState([]); // Estado para roles filtrados
 	const [permissions, setPermissions] = useState([]);
     const [selectedRole, setSelectedRole] = useState(null);
+    const [viewRole, setViewRole] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [roleToDelete, setRoleToDelete] = useState(null);
     const [currentPage, setCurrentPage] = useState(0); // Página actual
@@ -24,10 +26,10 @@ export default function Roles() {
 
     const fetchRoles = async (page) => {
         try {
-            const response = await RoleService.getAllRoles({ page, size: pageSize });
-            setRoles(response.content); // Asumiendo que la respuesta tiene un campo 'content' con los roles
-            setFilteredRoles(response.content); // Inicialmente los roles filtrados son todos los roles          
-            setTotalElements(response.totalElements); // Asumiendo que la respuesta tiene un campo 'totalElements'
+            const response = await RoleService.getAllRoles({ page, size: pageSize, q: searchQuery });
+            setRoles(response.content); 
+            setFilteredRoles(response.content);       
+            setTotalElements(response.totalElements); 
         } catch (error) {
             console.error('Error fetching roles:', error);
         }
@@ -44,7 +46,7 @@ export default function Roles() {
 
     useEffect(() => {
         fetchRoles(currentPage); // Carga inicial de roles		
-    }, [currentPage]);
+    }, [currentPage, searchQuery]);
 
 	useEffect(() => {
 		fetchPermissions();
@@ -105,6 +107,13 @@ export default function Roles() {
 
     const getActions = () => {
         const actions = [];
+        if (user?.authorities.includes('Role.read')) {
+            actions.push({
+                label: "Ver",
+                icon: <ViewIcon className="h-4 w-4" />,
+                onClick: (role) => setViewRole(role),
+            });
+        }
         if (user?.authorities.includes('Role.update')) {
             actions.push({
                 label: "Editar",
@@ -128,24 +137,21 @@ export default function Roles() {
         { name: "description", label: "Descripción" },
     ];
 
-    // Función para manejar la búsqueda
     const handleSearch = (event) => {
         const searchQuery = event.target.value;
         setSearchQuery(searchQuery);
-
-        // Filtrar roles por cualquier campo
-        const filtered = roles.filter((role) => {
-            return Object.values(role).some((value) => 
-                value && value.toString().toLowerCase().includes(searchQuery.toLowerCase())
-            );
-        });
-        
-        setFilteredRoles(filtered);
     };
 
     return (
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
-            {selectedRole ? (
+            { viewRole ? (
+                <RoleView
+                    selectedRole={viewRole}
+                    permissions={permissions}
+                    setRole={setViewRole}
+                />
+            ) :
+                selectedRole ? (
                 <RoleForm
                     selectedRole={selectedRole}
 					permissions={permissions}
