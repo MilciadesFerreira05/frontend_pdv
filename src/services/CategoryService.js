@@ -17,10 +17,10 @@ class CategoryService {
     }
   }
 
-  async getAllCategories({ page = 0, size = 10 } = {}) {
+  async getAllCategories({ page = 0, size = 10, q = ""} = {}) {
     try {
-      const response = await axiosInstance.get('/categories', {
-        params: { page, size }, // Parámetros de paginación
+      const response = await axiosInstance.get(`/categories?`, {
+        params: { page, size, q }, // Parámetros de paginación
         headers: {
           'Content-Type': 'application/json'
         }

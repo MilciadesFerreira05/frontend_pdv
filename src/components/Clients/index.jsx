@@ -23,7 +23,7 @@ export default function Clients() {
 
     const fetchClients = async (page) => {
         try {
-            const response = await ClientService.getAllClients({ page, size: pageSize });
+            const response = await ClientService.getAllClients({ page, size: pageSize, q: searchTerm });
             setClients(response.content); 
             setTotalElements(response.totalElements); 
             setFilteredClients(response.content); // Inicializar también los clientes filtrados
@@ -34,22 +34,7 @@ export default function Clients() {
 
     useEffect(() => {
         fetchClients(currentPage); // Llamada a la función de carga de clientes
-    }, [currentPage]);
-
-    useEffect(() => {
-        // Filtrar clientes basados en el término de búsqueda
-        const filtered = clients.filter(client => {
-            const searchLower = searchTerm.toLowerCase();
-            return (
-                client.name.toLowerCase().includes(searchLower) ||
-                client.phone.toLowerCase().includes(searchLower) ||
-                client.address.toLowerCase().includes(searchLower) ||
-                client.ruc.toLowerCase().includes(searchLower) ||
-                client.email.toLowerCase().includes(searchLower)
-            );
-        });
-        setFilteredClients(filtered);
-    }, [searchTerm, clients]); // Dependencias: término de búsqueda y lista de clientes
+    }, [currentPage, searchTerm]);
 
     const handlePageChange = (newPage) => {
         setCurrentPage(newPage); // Actualizar la página actual

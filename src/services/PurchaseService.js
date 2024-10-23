@@ -2,10 +2,10 @@ import axiosInstance from './axiosConfig';
 
 class PurchaseService {
   // Método para obtener la lista de todas las compras con paginación
-  async getAllPurchases({ page = 0, size = 10 }) {
+  async getAllPurchases({ page = 0, size = 10, q = "" } = {}) {
     try {
       const response = await axiosInstance.get('/purchases', {
-        params: { page, size }, // Parámetros de paginación
+        params: { page, size, q }, // Parámetros de paginación
         headers: {
           'Content-Type': 'application/json'
         }
@@ -40,7 +40,7 @@ class PurchaseService {
       });
       return response.data;
     } catch (error) {
-      console.error('Error updating purchase:', error);
+      console.log('Error updating purchase:', error);
       throw error;
     }
   }

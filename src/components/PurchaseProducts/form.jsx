@@ -13,10 +13,10 @@ const PurchaseProductsForm = ({ selectedPurchase, handlePurchaseUpdate, handlePu
   const [suppliers, setSuppliers] = useState([]);
   const [products, setProducts] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
-  const [selectedSupplier, setSelectedSupplier] = useState(null);
+  const [selectedSupplier, setSelectedSupplier] = useState(selectedPurchase.supplier || null);
   const [searchQuery, setSearchQuery] = useState("");
   const [selectedProducts, setSelectedProducts] = useState(selectedPurchase.items || []);
-  const [total, setTotal] = useState(0);
+  const [total, setTotal] = useState(selectedPurchase.total || 0);
   const [isNewPurchase, setIsNewPurchase] = useState(Object.keys(selectedPurchase).length === 0);
   const inputRef = useRef(null);
 
@@ -74,7 +74,7 @@ const PurchaseProductsForm = ({ selectedPurchase, handlePurchaseUpdate, handlePu
         return [
           ...prevSelectedProducts,
           { 
-            product: {id: product.id, name: product.name}, 
+            product: {id: product.id, name: product.name, description: product.description, code: product.code}, 
             quantity: 1, 
             price: 0,
             subtotal: 0
@@ -90,7 +90,6 @@ const PurchaseProductsForm = ({ selectedPurchase, handlePurchaseUpdate, handlePu
       inputRef.current.focus();
     }
   };
-  
 
   const handleProductChange = (event, index, field) => {
     const newProducts = [...selectedProducts];
@@ -256,7 +255,7 @@ const PurchaseProductsForm = ({ selectedPurchase, handlePurchaseUpdate, handlePu
 
             <div>
               <div className="flex justify-end mt-4 font-semibold text-red-600 text-xl">
-                Total: ${ selectedPurchase?.total || total.toFixed(2)}
+                Total: {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'PYG' }).format(selectedPurchase?.total  || total.toFixed(2)).replace('PYG', '₲')}
               </div>
               <Label className="font-semibold">Productos</Label>
               <p className="text-sm text-muted-foreground">
@@ -317,7 +316,15 @@ const PurchaseProductsForm = ({ selectedPurchase, handlePurchaseUpdate, handlePu
                             <div className="w-10 h-10 rounded-full bg-gray-100">
                             </div>
                             <div>
-                              <h4 className="font-medium">{item.product.name}</h4>
+                              <h4 className="font-medium">
+                                {item.product.name}
+          
+                                <span className="text-xs ml-1">
+                                  ({item.product.code})
+                                </span>
+                            
+                              </h4> 
+
                               <p className="text-sm text-muted-foreground">
                                 {item.product.description}
                               </p>
@@ -343,7 +350,7 @@ const PurchaseProductsForm = ({ selectedPurchase, handlePurchaseUpdate, handlePu
                         </td>
 
                         <td className="text-right py-2">
-                          {item.subtotal.toFixed(2)}
+                          {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'PYG' }).format(item.subtotal.toFixed(2)).replace('PYG', '₲')}
                         </td>
                         <td className="text-right py-2">
                           <Button

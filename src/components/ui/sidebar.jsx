@@ -1,7 +1,9 @@
 // Sidebar.js
-import { Link, useLocation } from "wouter";
-import { Package2Icon, PackageIcon, ClipboardIcon, UsersIcon, SettingsIcon, CurrenciesIcon, XIcon } from "./icons";
+import { Link } from "wouter";
+import { PackageIcon, ClipboardIcon, UsersIcon, SettingsIcon, CurrenciesIcon, XIcon } from "./icons";
 import { useContext } from "react";
+import nextgenIcon from '../../assets/nextgen.svg';
+
 import { AuthContext } from "./../../services/Auth/AuthContext"; // Asegúrate de importar tu contexto de autenticación
 
 const menuItems = [
@@ -28,8 +30,8 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
       <div className="flex h-full max-h-screen flex-col gap-2">
         <div className="flex h-[60px] items-center border-b px-6">
           <Link to="/" className="flex items-center gap-2 font-semibold">
-            <Package2Icon className="h-6 w-6" />
-            <span className="">Punto de venta</span>
+            <img src={nextgenIcon} className="w-8 mx-auto" alt="Next Gen Icon" />
+            <span className="ml-2">Punto de venta</span>
           </Link>
         </div>
         <div className="flex-1 overflow-auto py-2">

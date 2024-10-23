@@ -2,10 +2,10 @@ import axiosInstance from './axiosConfig';
 
 class UserService {
   // Método para obtener la lista de todos los usuarios con paginación
-  async getAllUsers({ page = 0, size = 10 } = {}) {
+  async getAllUsers({ page = 0, size = 10, q = "" } = {}) {
     try {
       const response = await axiosInstance.get('/users', {
-        params: { page, size }, // Parámetros de paginación
+        params: { page, size, q }, // Parámetros de paginación
         headers: {
           'Content-Type': 'application/json'
         }

@@ -13,7 +13,7 @@ const SaleProductsForm = ({ selectedSale, handleSaleUpdate, handleSaleCreate, se
 	const [clients, setClients] = useState([])
 	const [products, setProducts] = useState([])
 	const [searchResults, setSearchResults] = useState([])
-	const [selectedClient, setSelectedClient] = useState(null)
+	const [selectedClient, setSelectedClient] = useState(selectedSale.client || null)
 	const [searchQuery, setSearchQuery] = useState('')
 	const [selectedProducts, setSelectedProducts] = useState(selectedSale.items || [])
 	const [total, setTotal] = useState(0)
@@ -216,14 +216,14 @@ const SaleProductsForm = ({ selectedSale, handleSaleUpdate, handleSaleCreate, se
 								/>
 							</div>
 							<div className="grid gap-2">
-								<Label htmlFor="client">Proveedor</Label>
+								<Label htmlFor="client">Cliente</Label>
 								<Select
 									id="client"
 									getOptionLabel={(option) => option.name}
 									getOptionValue={(option) => option.id}
 									options={clients.map((s) => ({ id: s.id, name: s.name }))}
 									onChange={(selectedOption) => setSelectedClient(selectedOption)}
-									defaultValue={clients.find((option) => option.id === selectedSale?.client?.id)}
+									value={clients.find((option) => option.id === selectedSale?.client?.id)}
 								/>
 							</div>
 							<div className="grid gap-2">
@@ -240,7 +240,7 @@ const SaleProductsForm = ({ selectedSale, handleSaleUpdate, handleSaleCreate, se
 
 						<div>
 							<div className="flex justify-end mt-4 font-semibold text-red-600 text-xl">
-								Total: ${selectedSale?.total || total.toFixed(2)}
+								Total: {new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'PYG' }).format(selectedSale?.total  || total.toFixed(2)).replace('PYG', '₲')}
 							</div>
 							<Label className="font-semibold">Productos</Label>
 							<p className="text-sm text-muted-foreground">Lista de productos comprados</p>
@@ -338,7 +338,7 @@ const SaleProductsForm = ({ selectedSale, handleSaleUpdate, handleSaleCreate, se
 													/>
 												</td>
 
-												<td className="text-right py-2">{item.subtotal.toFixed(2)}</td>
+												<td className="text-right py-2">{new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'PYG' }).format(item.subtotal.toFixed(2)).replace('PYG', '₲')}</td> 
 												<td className="text-right py-2">
 													<Button
 														type="button"

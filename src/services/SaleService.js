@@ -2,10 +2,10 @@ import axiosInstance from './axiosConfig';
 
 class SaleService {
   // Método para obtener la lista de todas las compras con paginación
-  async getAllSales({ page = 0, size = 10 }) {
+  async getAllSales({ page = 0, size = 10, q = "" } = {}) {
     try {
       const response = await axiosInstance.get('/sales', {
-        params: { page, size }, // Parámetros de paginación
+        params: { page, size, q }, // Parámetros de paginación
         headers: {
           'Content-Type': 'application/json'
         }

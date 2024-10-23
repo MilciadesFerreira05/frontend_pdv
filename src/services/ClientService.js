@@ -2,10 +2,10 @@ import axiosInstance from './axiosConfig';
 
 class ClientService {
   // Método para obtener la lista de todos los clientes con paginación
-  async getAllClients({ page = 0, size = 10 } = {}) {
+  async getAllClients({ page = 0, size = 10, q = ""} = {}) {
     try {
       const response = await axiosInstance.get('/clients', {
-        params: { page, size }, // Parámetros de paginación
+        params: { page, size, q }, // Parámetros de paginación
         headers: {
           'Content-Type': 'application/json'
         }

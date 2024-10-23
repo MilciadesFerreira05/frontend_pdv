@@ -2,10 +2,10 @@ import axiosInstance from './axiosConfig';
 
 class RoleService {
   // Método para obtener la lista de todos los roles con paginación
-  async getAllRoles({ page = 0, size = 10 } = {}) {
+  async getAllRoles({ page = 0, size = 10, q = "" } = {}) {
     try {
       const response = await axiosInstance.get('/roles', {
-        params: { page, size }, // Parámetros de paginación
+        params: { page, size, q }, // Parámetros de paginación
         headers: {
           'Content-Type': 'application/json'
         }

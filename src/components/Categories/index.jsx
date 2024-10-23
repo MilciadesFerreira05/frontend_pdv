@@ -23,9 +23,9 @@ export default function Categories() {
 
     const fetchCategories = async (page) => {
         try {
-            const response = await CategoryService.getAllCategories({ page, size: pageSize });
+            const response = await CategoryService.getAllCategories({ page, size: pageSize }, { q: searchQuery });
             setCategories(response.content);
-            setFilteredCategories(response.content); // Inicialmente mostrar todas
+            setFilteredCategories(response.content); 
             setTotalElements(response.totalElements);
         } catch (error) {
             console.error('Error fetching categories:', error);
@@ -34,7 +34,7 @@ export default function Categories() {
 
     useEffect(() => {
         fetchCategories(currentPage);
-    }, [currentPage]);
+    }, [currentPage, searchQuery]);
 
     const handlePageChange = (newPage) => {
         if (newPage >= 0 && newPage < Math.ceil(totalElements / pageSize)) {
@@ -118,14 +118,14 @@ export default function Categories() {
 
     // Función para manejar la búsqueda
     const handleSearch = (event) => {
-        const searchQuery = event.target.value;
-        setSearchQuery(searchQuery);
+        const q = event.target.value;
+        setSearchQuery(q);
 
-        // Filtrar categorías por el nombre (agregando validación)
-        const filtered = categories.filter((category) => 
-            category.name && category.name.toLowerCase().includes(searchQuery.toLowerCase())
-        );
-        setFilteredCategories(filtered);
+        // // Filtrar categorías por el nombre (agregando validación)
+        // const filtered = categories.filter((category) => 
+        //     category.name && category.name.toLowerCase().includes(searchQuery.toLowerCase())
+        // );
+        // setFilteredCategories(filtered);
     };
 
     return (

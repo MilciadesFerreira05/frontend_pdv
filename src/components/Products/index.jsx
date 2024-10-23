@@ -23,10 +23,10 @@ export default function Products() {
 
     const fetchProducts = async (page) => {
         try {
-            const response = await ProductService.getAllProducts({ page, size: pageSize });
-            setProducts(response.content); // Asumiendo que la respuesta tiene un campo 'content' con los productos
-            setFilteredProducts(response.content); // Inicialmente mostrar todos los productos
-            setTotalElements(response.totalElements); // Asumiendo que la respuesta tiene un campo 'totalElements'
+            const response = await ProductService.getAllProducts({ page, size: pageSize, q: searchQuery });
+            setProducts(response.content); 
+            setFilteredProducts(response.content); 
+            setTotalElements(response.totalElements); 
         } catch (error) {
             console.error('Error fetching products:', error);
         }
@@ -34,7 +34,7 @@ export default function Products() {
 
     useEffect(() => {
         fetchProducts(currentPage); // Llamada a la función de carga de productos
-    }, [currentPage]);
+    }, [currentPage, searchQuery]);
 
     const handlePageChange = (newPage) => {
         setCurrentPage(newPage); // Actualizar la página actual
@@ -42,9 +42,8 @@ export default function Products() {
 
     const handleProductCreate = async (newProduct) => {
         try {
-            const createdProduct = await ProductService.save(newProduct);
-            setProducts([...products, createdProduct]);
-            setFilteredProducts([...products, createdProduct]); // Actualizar lista filtrada
+            await ProductService.save(newProduct);
+            fetchProducts(currentPage);
             setSelectedProduct(null);
         } catch (error) {
             console.error('Error creating product:', error);
@@ -53,12 +52,8 @@ export default function Products() {
 
     const handleProductUpdate = async (updatedProduct) => {
         try {
-            const product = await ProductService.update(updatedProduct.id, updatedProduct);
-            const updatedProducts = products.map((p) => 
-                p.id === updatedProduct.id ? product : p
-            );
-            setProducts(updatedProducts);
-            setFilteredProducts(updatedProducts); // Actualizar lista filtrada
+            await ProductService.update(updatedProduct.id, updatedProduct);
+            fetchProducts(currentPage);
             setSelectedProduct(null);
         } catch (error) {
             console.error('Error updating product:', error);
@@ -68,9 +63,7 @@ export default function Products() {
     const handleProductDelete = async (productId) => {
         try {
             await ProductService.delete(productId);
-            const updatedProducts = products.filter((p) => p.id !== productId);
-            setProducts(updatedProducts);
-            setFilteredProducts(updatedProducts); // Actualizar lista filtrada
+            fetchProducts(currentPage);
             setSelectedProduct(null);
         } catch (error) {
             console.error('Error deleting product:', error);

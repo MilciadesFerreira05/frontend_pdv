@@ -56,6 +56,7 @@ const Form = ({ selectedProduct, handleProductUpdate, handleProductCreate, setPr
     const updatedProduct = {
       id: selectedProduct?.id,
       ...formValues,
+      stock: selectedProduct?.stock || 0,
       price: parseFloat(formValues.price),
       iva: parseInt(formValues.iva),
     };
