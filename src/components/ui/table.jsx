@@ -16,7 +16,7 @@ const TableData = ({ data = [], columns = [], actions = [], totalElements = 0, p
     return (
         <>
             <Table>
-                <TableHeader>
+                <TableHeader >
                     {/* Encabezado de la tabla */}
                     <TableRow>
                         {columns?.map((c, index) => (

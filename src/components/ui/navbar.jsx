@@ -1,9 +1,9 @@
 import React, { useRef, useEffect, useContext} from "react";
-import { ArrowLeftIcon, LogoutIcon, Package2Icon, SearchIcon } from "./icons";
+import { ArrowLeftIcon, LogoutIcon, MenuIcon, Package2Icon, SearchIcon } from "./icons";
 import { UsersIcon } from './icons';
 import { AuthContext } from "../../services/Auth/AuthContext";
 
-const Navbar = ({title}) => {
+const Navbar = ({title, isOpen, toggleSidebar}) => {
   const dropdownRef = useRef(null); // Referencia al dropdown
   const { user } = useContext(AuthContext); 
 
@@ -30,9 +30,11 @@ const Navbar = ({title}) => {
 
   return (
     <header className="flex h-14 lg:h-[60px] items-center gap-4 border-b bg-muted/40 px-6">
-      <button className="lg:hidden">
-        <Package2Icon className="h-6 w-6" />
-        <span className="sr-only">Open sidebar</span>
+      <button 
+          onClick={() => toggleSidebar(!isOpen)} 
+        className="text-gray-500 hover:text-primary"
+      >
+        <MenuIcon className="w-6 h-6" />
       </button>
       <div className="w-full flex-1">
         <h1 className="text-2xl font-semibold">{title}</h1>

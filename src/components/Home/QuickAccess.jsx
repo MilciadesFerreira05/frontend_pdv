@@ -29,7 +29,7 @@ const QuickAccess = () => {
           <Link 
             key={item.path} 
             href={item.path} 
-            className="flex flex-col items-center justify-center p-4 border rounded-lg shadow hover:bg-muted/20 transition-all"
+            className="flex flex-col items-center justify-center p-4 border rounded-lg shadow hover:text-primary transition-all"
           >
             <div className="mb-2">{item.icon}</div>
             <span className="text-center text-sm font-medium">{item.text}</span>

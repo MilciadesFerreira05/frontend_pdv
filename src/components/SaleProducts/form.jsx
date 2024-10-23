@@ -201,7 +201,7 @@ const SaleProductsForm = ({ selectedSale, handleSaleUpdate, handleSaleCreate, se
 
 			<Card className="w-full max-w-[100%]">
 				<CardHeader>
-					<CardTitle>Compra de productos</CardTitle>
+					<CardTitle>Venta de productos</CardTitle>
 				</CardHeader>
 				<CardContent>
 					<form className="grid gap-6" onSubmit={handleSubmit}>
