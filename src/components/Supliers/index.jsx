@@ -43,13 +43,14 @@ export default function Suppliers() {
     };
 
     const handleSupplierCreate = async (newSupplier) => {
-        try {
-            const createdSupplier = await SupplierService.save(newSupplier);
-            setSuppliers([...suppliers, createdSupplier]);
+        await SupplierService.save(newSupplier).then(() => {
+            fetchSuppliers(currentPage);
             setSelectedSupplier(null);
-        } catch (error) {
+        }).catch((error) => {
             console.error('Error creating supplier:', error);
-        }
+            alert('Error en la solicitud');
+        });
+        
     };
 
     const handleSupplierUpdate = async (updatedSupplier) => {

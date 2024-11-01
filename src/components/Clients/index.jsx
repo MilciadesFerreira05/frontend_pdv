@@ -43,13 +43,15 @@ export default function Clients() {
     };
 
     const handleClientCreate = async (newClient) => {
-        try {
-            const createdClient = await ClientService.save(newClient);
-            setClients([...clients, createdClient]);
-            setSelectedClient(null);
-        } catch (error) {
-            console.error('Error creating client:', error);
-        }
+       
+            await ClientService.save(newClient).then(() => {
+                fetchClients(currentPage);
+                setSelectedClient(null);
+            }).catch((error) => {
+                console.error('Error creating client:', error);
+                alert('Error en la solicitud');
+            })
+
     };
 
     const handleClientUpdate = async (updatedClient) => {
@@ -101,7 +103,7 @@ export default function Clients() {
             actions.push({
                 label: "Editar",
                 icon: <EditIcon className="h-4 w-4"/>,
-                onClick: (client) => setViewClient(client),
+                onClick: (client) => setSelectedClient(client),
             });
         }
         if (user?.authorities.includes('Client.delete')) {
