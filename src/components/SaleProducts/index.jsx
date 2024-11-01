@@ -5,7 +5,7 @@ import { TableData } from '../ui/table';
 import SaleService from '../../services/SaleService';
 import Form from './form'; 
 import { AuthContext } from '../../services/Auth/AuthContext';
-import { DeleteIcon, EditIcon, MenuIcon, PlusIcon, SearchIcon, ViewIcon } from '../ui/icons';
+import { DeleteIcon, EditIcon, MenuIcon, PlusIcon, PrintIcon, SearchIcon, ViewIcon } from '../ui/icons';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { Input } from '../ui/input'; // Input para búsqueda
 import SaleProductsReport from './report';
@@ -45,12 +45,29 @@ const SaleProducts = () => {
         setCurrentPage(newPage);
     };
 
-    const handleSaleCreate = async (newSale) => {
+    const handlePrint = async (id) => {
+        await SaleService.print(id).
+        then((response) => {
+            alert('Impreso');    
+        }).catch((error) => {
+            alert('Error en la impresión');
+            console.error('Error printing sale:', error);
+        });
+    };
+    
+
+    const handleSaleCreate = async (sale, printOnSave) => {
         try {
-            const createdSale = await SaleService.save(newSale);
+            const createdSale = await SaleService.save(sale);
             setSales((prevSales) => [...prevSales, createdSale]);
-            setFilteredSales((prevSales) => [...prevSales, createdSale]); // Actualizar lista filtrada
-            setSelectedSale(null); // Limpiar selección después de crear
+            setFilteredSales((prevSales) => [...prevSales, createdSale]);
+            
+            if (printOnSave) {
+                handlePrint(createdSale.id);
+            }
+
+            setSelectedSale(null);  
+
         } catch (error) {
             console.error('Error creating sale:', error);
         }
@@ -104,6 +121,15 @@ const SaleProducts = () => {
                 onClick: (sale) => setViewSale(sale),
             });
         }
+
+        if (user?.authorities.includes('ProductSale.read')) {
+            actions.push({
+                label: "Imprimir",
+                icon: <PrintIcon className="h-4 w-4"/>,
+                onClick: (sale) => handlePrint(sale.id),
+            });
+        }
+
         if (user?.authorities.includes('ProductSale.update')) {
             actions.push({
                 label: "Editar",
@@ -111,6 +137,7 @@ const SaleProducts = () => {
                 onClick: (sale) => setSelectedSale(sale),
             });
         }
+
         if (user?.authorities.includes('ProductSale.delete')) {
             actions.push({
                 label: "Eliminar",
@@ -118,6 +145,7 @@ const SaleProducts = () => {
                 onClick: (sale) => openConfirmModal(sale),
             });
         }
+
         return actions;
     };
 
@@ -129,7 +157,6 @@ const SaleProducts = () => {
         { name: "total", label: "Total" , callback: (total) => new Intl.NumberFormat('es-ES', { style: 'currency', currency: 'PYG' }).format(total) },
     ];
 
-    // Función para manejar la búsqueda
     const handleSearch = (event) => {
         const searchQuery = event.target.value;
         setSearchQuery(searchQuery);
@@ -170,7 +197,7 @@ const SaleProducts = () => {
                             )}
                             {user?.authorities.includes('ProductSale.create') && (
                                 <Button variant="primary" onClick={() => setSelectedSale({})}>
-                                    <PlusIcon className="h-4 w-4 mr-1" /> Crear compra
+                                    <PlusIcon className="h-4 w-4 mr-1" /> Nueva venta
                                 </Button>
                             )}
                         </div>

@@ -32,6 +32,21 @@ class ProductService {
     }
   }
 
+  async getProductByCode({code = "" } = {}) {
+    try {
+      const response = await axiosInstance.get('/products/code', {
+        params: { code },
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      return response.data; // Retorna los datos de la respuesta
+    } catch (error) {
+      console.error('Error searching products:', error);
+      throw error;
+    }
+  }
+
   async save(product) {
     try {
       const response = await axiosInstance.post('/products', product, {
@@ -72,6 +87,27 @@ class ProductService {
       throw error;
     }
   }
+
+  async getReport(params) {
+
+    try {
+      const response = await axiosInstance.get('/products/report', {
+        params: { ...params }, 
+        responseType: 'blob',
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+      return response.data; // Retorna los datos de la respuesta
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      throw error; // Lanza el error para manejarlo en otro lugar si es necesario
+    }
+  }
+
+
 }
+
+
 
 export default new ProductService();

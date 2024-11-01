@@ -3,22 +3,24 @@ import { Button } from '../ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '../ui/card'
 import { Label } from '../ui/label'
 import { Input } from '../ui/input'
-import { Textarea } from '../ui/textarea'
-import { SearchIcon, DeleteIcon, NoImageIcon, ArrowLeftIcon } from '../ui/icons' // Asumiendo que tienes un icono de basura
+import { SearchIcon, DeleteIcon, ArrowLeftIcon } from '../ui/icons' 
 import Select from 'react-select'
 import ProductService from '../../services/ProductService'
 import ClientService from './../../services/ClientService'
 
 const SaleProductsForm = ({ selectedSale, handleSaleUpdate, handleSaleCreate, setSale }) => {
 	const [clients, setClients] = useState([])
-	const [products, setProducts] = useState([])
 	const [searchResults, setSearchResults] = useState([])
 	const [selectedClient, setSelectedClient] = useState(selectedSale.client || null)
 	const [searchQuery, setSearchQuery] = useState('')
 	const [selectedProducts, setSelectedProducts] = useState(selectedSale.items || [])
-	const [total, setTotal] = useState(0)
+	const [total, setTotal] = useState(selectedSale.total || 0)
 	const [isNewSale, setIsNewSale] = useState(Object.keys(selectedSale).length === 0)
 	const inputRef = useRef(null)
+	const [printOnSave, setPrintOnSave] = useState(true);
+	const [barcode, setBarcode] = useState("");
+	const [lastKeyTime, setLastKeyTime] = useState(Date.now());
+
 
 	useEffect(() => {
 		const fetchClients = async () => {
@@ -55,48 +57,104 @@ const SaleProductsForm = ({ selectedSale, handleSaleUpdate, handleSaleCreate, se
 		}
 	}, [searchQuery])
 
+
+	useEffect(() => {
+		const handleKeyDown = (event) => {
+		  const currentTime = Date.now();
+	
+		  // Si la diferencia entre teclas es mayor a 100ms, se reinicia el código
+		  if (currentTime - lastKeyTime > 100) {
+			setBarcode('');
+		  }
+	
+		  // Agregar el caracter al código
+		  setBarcode((prevBarcode) => prevBarcode + event.key);
+		  setLastKeyTime(currentTime);
+	
+		  // Si la tecla es "Enter", se completa el escaneo
+		  if (event.key === 'Enter') {
+			searchProductByBarcode(barcode); // Llama a la función searchProductByBarcode con el código escaneado
+			setBarcode(''); // Reinicia el código después del escaneo
+		  }
+		};
+	
+		// Añadir el listener para keydown
+		window.addEventListener('keydown', handleKeyDown);
+	
+		// Limpiar el listener al desmontar el componente
+		return () => window.removeEventListener('keydown', handleKeyDown);
+	}, [barcode, lastKeyTime]);
+	
+
+    const searchProductByBarcode = async (barcode) => {
+        try {
+            const result = await ProductService.getProductByCode({ code: barcode });
+			
+            if (result) {
+                handleProductSelect(result);
+            } else {
+                alert(`Producto con código de barras ${barcode} no encontrado`);
+            }
+        } catch (error) {
+            console.error("Error buscando producto por código de barras:", error);
+        }
+    };
+
 	const handleProductSelect = (product) => {
-		setSelectedProducts((prevSelectedProducts) => {
-			// Verifica si el producto ya está en la lista
-			const existingProduct = prevSelectedProducts.find((p) => p.product.id === product.id)
+		// Verificar si el producto ya está en la lista de seleccionados
+		const existingProductIndex = selectedProducts.findIndex(p => p.product.id === product.id);
 
-			if (existingProduct) {
-				// Si ya está en la lista, incrementa la cantidad
-				return prevSelectedProducts.map((p) =>
-					p.product.id === product.id
-						? {
-								...p,
-								quantity: Number(p.quantity) + 1,
-								price: p.price,
-								subtotal: (Number(p.quantity) + 1) * p.price || 0,
-						  }
-						: p
-				)
-			} else {
-				// Si no está en la lista, agrega un nuevo producto con cantidad 1
-				return [
-					...prevSelectedProducts,
-					{
-						product: { id: product.id, name: product.name },
-						quantity: 1,
-						price: product.price,
-						subtotal: product.price,
-					},
-				]
+		if (existingProductIndex !== -1) {
+			// Producto ya existe, sumar la cantidad actual con la nueva
+			const existingProduct = selectedProducts[existingProductIndex];
+			const newQuantity = Number(existingProduct.quantity) + 1; // Incrementar cantidad en 1
+
+			// Validar si el stock alcanza
+			if (product.stockControl && newQuantity > product.stock) {
+				alert('No se puede agregar más productos, el stock disponible es insuficiente.');
+				setSearchQuery('');
+				return;
 			}
-		})
 
-		setSearchQuery('')
-		setSearchResults([])
-		updateTotal()
-		if (inputRef.current) {
-			inputRef.current.focus()
+			// Actualizar la cantidad del producto existente
+			const updatedProduct = {
+				...existingProduct,
+				quantity: newQuantity,
+				subtotal: (newQuantity * existingProduct.price),
+			};
+
+			const updatedProducts = [...selectedProducts];
+			updatedProducts[existingProductIndex] = updatedProduct;
+
+			setSelectedProducts(updatedProducts);
+		} else {
+			// Producto no existe, agregarlo a la lista
+			if (product.stockControl && product.stock < 1) {
+				alert('No se puede agregar el producto, no hay stock disponible.');
+				return;
+			}
+
+			const newProduct = {
+				product,
+				quantity: 1, // Agregar como 1 inicialmente
+				price: product.price,
+				subtotal: product.price,
+			};
+
+			setSelectedProducts([...selectedProducts, newProduct]);
 		}
-	}
+
+		setSearchQuery('');
+	};
 
 	const handleProductChange = (event, index, field) => {
 		const newProducts = [...selectedProducts]
 		const updatedValue = event.target.value
+
+		if(field === 'quantity' && newProducts[index].product.stockControl && updatedValue > newProducts[index].product.stock) {
+			alert('No se puede agregar más productos, el stock disponible es insuficiente.')
+			return
+		}
 
 		// Actualiza el campo correspondiente (quantity o price)
 		newProducts[index] = { ...newProducts[index], [field]: updatedValue }
@@ -123,7 +181,7 @@ const SaleProductsForm = ({ selectedSale, handleSaleUpdate, handleSaleCreate, se
 		setTotal(newTotal)
 	}
 
-	const handleSearchChange = (event) => {
+	const handleSearchChange = (event) => {	
 		setSearchQuery(event.target.value)
 	}
 
@@ -181,11 +239,9 @@ const SaleProductsForm = ({ selectedSale, handleSaleUpdate, handleSaleCreate, se
 		}
 
 		if (isNewSale) {
-			console.log('New sale:', sale)
-
-			handleSaleCreate(sale)
+			handleSaleCreate(sale, printOnSave);
 		} else {
-			handleSaleUpdate(sale)
+			handleSaleUpdate(sale, printOnSave);
 		}
 	}
 
@@ -204,7 +260,14 @@ const SaleProductsForm = ({ selectedSale, handleSaleUpdate, handleSaleCreate, se
 					<CardTitle>Venta de productos</CardTitle>
 				</CardHeader>
 				<CardContent>
-					<form className="grid gap-6" onSubmit={handleSubmit}>
+					<form 
+						className="grid gap-6" 
+						onSubmit={handleSubmit}   
+						onKeyDown={(e) => { 
+							if (e.key === 'Enter') {
+      							e.preventDefault();
+    						}
+  						}}>
 						<div className="grid sm:grid-cols-3 gap-4">
 							<div className="grid gap-2">
 								<Label htmlFor="date">Fecha</Label>
@@ -355,12 +418,15 @@ const SaleProductsForm = ({ selectedSale, handleSaleUpdate, handleSaleCreate, se
 							</div>
 						</div>
 
-						<div className="flex justify-between mt-4 items-center">
+						<div className="flex justify-between  mt-4 items-center">
+
+						</div>
+						<div className="flex justify-between items-center">
 							<div className="flex items-center">
-								<input type="checkbox" id="printOnSave" name="printOnSave" className="mr-2" defaultChecked />
+								<input type="checkbox" id="printOnSave" name="printOnSave" onChange={(e) => {setPrintOnSave(e.target.checked)}} className="mr-2" defaultChecked />
 								<label htmlFor="printOnSave" className="text-gray-700">
 									Imprimir al guardar
-								</label>
+								</label>							
 							</div>
 							<Button type="submit">Completar compra</Button>
 						</div>

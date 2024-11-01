@@ -172,7 +172,7 @@ const PurchaseProducts = () => {
                             )}
                             {user?.authorities.includes('ProductPurchase.create') && (
                                 <Button variant="primary" onClick={() => setSelectedPurchase({})}>
-                                    <PlusIcon className="h-4 w-4 mr-1" /> Crear compra
+                                    <PlusIcon className="h-4 w-4 mr-1" /> Nueva compra
                                 </Button>
                             )}
                         </div>

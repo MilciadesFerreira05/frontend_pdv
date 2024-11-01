@@ -11,7 +11,6 @@ import SupplierService from "./../../services/SupplierService";
 
 const PurchaseProductsForm = ({ selectedPurchase, handlePurchaseUpdate, handlePurchaseCreate, setPurchase }) => {
   const [suppliers, setSuppliers] = useState([]);
-  const [products, setProducts] = useState([]);
   const [searchResults, setSearchResults] = useState([]);
   const [selectedSupplier, setSelectedSupplier] = useState(selectedPurchase.supplier || null);
   const [searchQuery, setSearchQuery] = useState("");
@@ -19,6 +18,8 @@ const PurchaseProductsForm = ({ selectedPurchase, handlePurchaseUpdate, handlePu
   const [total, setTotal] = useState(selectedPurchase.total || 0);
   const [isNewPurchase, setIsNewPurchase] = useState(Object.keys(selectedPurchase).length === 0);
   const inputRef = useRef(null);
+  const [barcode, setBarcode] = useState("");
+  const [lastKeyTime, setLastKeyTime] = useState(Date.now());
 
   useEffect(() => {
     const fetchSuppliers = async () => {
@@ -49,6 +50,47 @@ const PurchaseProductsForm = ({ selectedPurchase, handlePurchaseUpdate, handlePu
       setSearchResults([]);
     }
   }, [searchQuery]);
+
+  useEffect(() => {
+		const handleKeyDown = (event) => {
+		  const currentTime = Date.now();
+	
+		  // Si la diferencia entre teclas es mayor a 100ms, se reinicia el código
+		  if (currentTime - lastKeyTime > 100) {
+			  setBarcode('');
+		  }
+	
+		  // Agregar el caracter al código
+		  setBarcode((prevBarcode) => prevBarcode + event.key);
+		  setLastKeyTime(currentTime);
+	
+		  // Si la tecla es "Enter", se completa el escaneo
+		  if (event.key === 'Enter') {
+			  searchProductByBarcode(barcode); // Llama a la función searchProductByBarcode con el código escaneado
+			  setBarcode(''); // Reinicia el código después del escaneo
+		  }
+		};
+	
+		// Añadir el listener para keydown
+		window.addEventListener('keydown', handleKeyDown);
+	
+		// Limpiar el listener al desmontar el componente
+		return () => window.removeEventListener('keydown', handleKeyDown);
+	}, [barcode, lastKeyTime]);
+
+  const searchProductByBarcode = async (barcode) => {
+    try {
+        const result = await ProductService.getProductByCode({ code: barcode });
+  
+        if (result) {
+            handleProductSelect(result);
+        } else {
+            alert(`Producto con código de barras ${barcode} no encontrado`);
+        }
+    } catch (error) {
+        console.error("Error buscando producto por código de barras:", error);
+    }
+  };
 
   const handleProductSelect = (product) => {
     setSelectedProducts((prevSelectedProducts) => {
@@ -86,9 +128,9 @@ const PurchaseProductsForm = ({ selectedPurchase, handlePurchaseUpdate, handlePu
     setSearchQuery("");
     setSearchResults([]);
     updateTotal();
-    if (inputRef.current) {
-      inputRef.current.focus();
-    }
+    // if (inputRef.current) {
+    //   inputRef.current.focus();
+    // }
   };
 
   const handleProductChange = (event, index, field) => {
@@ -218,7 +260,16 @@ const PurchaseProductsForm = ({ selectedPurchase, handlePurchaseUpdate, handlePu
           <CardTitle>Compra de productos</CardTitle>
         </CardHeader>
         <CardContent>
-          <form className="grid gap-6" onSubmit={handleSubmit}>
+          <form 
+            className="grid gap-6" 
+            onSubmit={handleSubmit} 						
+            onKeyDown={(e) => { 
+							if (e.key === 'Enter') {
+      							e.preventDefault();
+    						}
+  						}
+            }
+          >
             <div className="grid sm:grid-cols-3 gap-4">
               <div className="grid gap-2">
                 <Label htmlFor="date">Fecha</Label>
@@ -307,7 +358,7 @@ const PurchaseProductsForm = ({ selectedPurchase, handlePurchaseUpdate, handlePu
                       <th className="text-right pb-2 w-20"></th>
                     </tr>
                   </thead>
-                  <tbody>
+                  <tbody key={selectedProducts.length}>
                     {selectedProducts.map((item, index) => (
               
                       <tr key={item.id} className="border-b">

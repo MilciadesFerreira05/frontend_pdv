@@ -57,6 +57,7 @@ class PurchaseService {
       throw error;
     }
   }
+  
   async getReport(desde, hasta) {
     try {
       const response = await axiosInstance.get('/purchases/report', {

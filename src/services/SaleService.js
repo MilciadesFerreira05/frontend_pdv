@@ -80,6 +80,21 @@ class SaleService {
       throw error;
     }
   }
+
+  async print(id) {
+    try {
+      const response = await axiosInstance.get('/sales/print/' + id, {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+  
+      return response.data; // Retorna el Blob del PDF
+    } catch (error) {
+      console.error('Error fetching PDF report:', error);
+      throw error;
+    }
+  }
 }
 
 export default new SaleService();

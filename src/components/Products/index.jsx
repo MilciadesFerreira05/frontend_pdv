@@ -5,10 +5,11 @@ import { TableData } from '../ui/table';
 import ProductService from '../../services/ProductService';
 import Form from './form';
 import { AuthContext } from '../../services/Auth/AuthContext';
-import { DeleteIcon, EditIcon, MenuIcon, PlusIcon, SearchIcon, ViewIcon } from '../ui/icons';
+import { DeleteIcon, EditIcon, MenuIcon, PlusIcon, SearchIcon, ViewIcon, BarcodeIcon } from '../ui/icons';
 import { ConfirmModal } from '@/components/ui/ConfirmModal';
 import { Input } from '../ui/input';
 import ProductView from './view';
+import ProductsReport from './report';
 
 export default function Products() {
     const [products, setProducts] = useState([]);
@@ -22,6 +23,9 @@ export default function Products() {
     const [totalElements, setTotalElements] = useState(0); // Estado para el total de elementos
     const [searchQuery, setSearchQuery] = useState(''); // Estado para la búsqueda
     const { user } = useContext(AuthContext);
+    const [isReportVisible, setIsReportVisible] = useState(false);
+    const [file, setFile] = useState(null);
+
 
     const fetchProducts = async (page) => {
         try {
@@ -93,6 +97,17 @@ export default function Products() {
                 onClick: (product) => setViewProduct(product),
             });
         }
+
+        if (user?.authorities.includes('Product.read')) {
+            actions.push({
+                label: "Codigo de barras",
+                icon: <BarcodeIcon className="h-4 w-4"/>,
+                onClick: (product) => {
+                    getReport({report: 'barcode', id: product.id, cant: 10 });
+                },
+            });
+        }
+
         if (user?.authorities.includes('Product.update')) {
             actions.push({
                 label: "Editar",
@@ -100,6 +115,7 @@ export default function Products() {
                 onClick: (product) => setSelectedProduct(product),
             });
         }
+
         if (user?.authorities.includes('Product.delete')) {
             actions.push({
                 label: "Eliminar",
@@ -107,6 +123,7 @@ export default function Products() {
                 onClick: (product) => openConfirmModal(product),
             });
         }
+
         return actions;
     };
 
@@ -118,6 +135,17 @@ export default function Products() {
         { name: "stock", label: "Stock", align: 'right'},
         { name: "category.name", label: "Categoría" },
     ];
+
+    const getReport = async ( params ) => {
+		
+		try {
+			const response = await ProductService.getReport(params);
+			setFile(response);
+            setIsReportVisible(true);
+		} catch (error) {
+			console.error('Error al obtener el reporte:', error);
+		}
+	};
 
     // Función para manejar la búsqueda
     const handleSearch = (event) => {
@@ -136,7 +164,9 @@ export default function Products() {
         <main className="flex flex-1 flex-col gap-4 p-4 md:gap-8 md:p-6">
              { viewProduct ? (
                 <ProductView selectedProduct={viewProduct} setProduct={setViewProduct} />
-             ): selectedProduct ? (
+             ):isReportVisible ? (
+                <ProductsReport setIsReportVisible={setIsReportVisible} file={file}/>
+             ) :  selectedProduct ? (
                 <Form
                     selectedProduct={selectedProduct}
                     handleProductUpdate={handleProductUpdate}
@@ -152,19 +182,25 @@ export default function Products() {
                                 type="search"
                                 placeholder="Búsqueda"
                                 value={searchQuery}
-                                onChange={handleSearch} // Escuchar cambios en el input
+                                onChange={handleSearch}
                                 className="w-full bg-background shadow-none appearance-none pl-8 md:w-2/3 lg:w-3/3"
                             />
                         </div>      
                         <div className="flex gap-2">
                             {user?.authorities.includes('Product.read') && (
-                                <Button key={1} variant="primary"  >
-                                    <MenuIcon className="h-4 w-4 mr-1" />Reporte
+                                <Button 
+                                    key={1} 
+                                    variant="primary"  
+                                    onClick={() => {
+                                        getReport({report: 'products' })}
+                                    }
+                                >
+                                    <MenuIcon className="h-4 w-4 mr-1"  />Reporte de Inventario
                                 </Button>
                             )}
                             {user?.authorities.includes('Product.create') && (
                                 <Button key={2} variant="primary" onClick={() => setSelectedProduct({})}>
-                                    <PlusIcon className="h-4 w-4 mr-1" /> Crear Producto
+                                    <PlusIcon className="h-4 w-4 mr-1" /> Nuevo Producto
                                 </Button>
                             )}
                             
