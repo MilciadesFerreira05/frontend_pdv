@@ -1,5 +1,5 @@
 import { useState, useContext, useEffect } from 'react';
-import { Route, Switch, Redirect } from 'wouter';
+import { Route, Switch } from 'wouter';
 import Sidebar from '../ui/sidebar';
 import Navbar from '../ui/navbar';
 import Products from '../Products';
@@ -10,10 +10,10 @@ import { AuthContext } from '../../services/Auth/AuthContext';
 import Suppliers from '../Supliers';
 import Roles from '../Roles';
 import PurchaseProducts from '../PurchaseProducts';
-import Dashboard from './Dashboard';
 import Users from '../Users';
 import QuickAccess from './QuickAccess';
 import SaleProducts from '../SaleProducts';
+import Config from '../Config/Config';
 
 const Home = () => {
   const { isAuthenticated } = useContext(AuthContext);
@@ -52,6 +52,7 @@ const Home = () => {
             <RouteWithTitle path="/sales" title="Ventas" Component={SaleProducts} />
             <RouteWithTitle path="/roles" title="Roles" Component={Roles} />
             <RouteWithTitle path="/Users" title="Usuarios" Component={Users} />
+            <RouteWithTitle path="/settings" title="Configuración" Component={Config} />
           </Switch>
         </div>
       </div>

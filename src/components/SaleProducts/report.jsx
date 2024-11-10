@@ -12,8 +12,8 @@ const SaleProductsReport = ({setIsReportVisible}) => {
 
     const getReport = async (desde, hasta) => {
         try {
-          const response = await SaleService.getReport(desde, hasta);
-          setfile(response); // Asegúrate de que 'response' sea el Blob correcto
+          const response = await SaleService.getReport({desde: desde, hasta: hasta, report: 'sales'});
+          setfile(response); 
         } catch (error) {
           console.error('Error al obtener el reporte:', error);
         }

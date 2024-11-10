@@ -17,6 +17,8 @@ export default function Products() {
     const [selectedProduct, setSelectedProduct] = useState(null);
     const [viewProduct, setViewProduct] = useState(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isBarcodeModalOpen, setIsBarcodeModalOpen] = useState(false);
+    const [selectedBarcodeProduct, setSelectedBarcodeProduct] = useState(null);
     const [productToDelete, setProductToDelete] = useState(null);
     const [currentPage, setCurrentPage] = useState(0); // Estado para la página actual
     const [pageSize] = useState(10); // Tamaño de página
@@ -88,6 +90,11 @@ export default function Products() {
         setIsModalOpen(false);
     };
 
+    const handleBarcodePrint = (product) => {
+        setSelectedBarcodeProduct(product);
+        setIsBarcodeModalOpen(true);
+    }
+
     const getActions = () => {
         const actions = [];
         if (user?.authorities.includes('Product.read')) {
@@ -102,9 +109,7 @@ export default function Products() {
             actions.push({
                 label: "Codigo de barras",
                 icon: <BarcodeIcon className="h-4 w-4"/>,
-                onClick: (product) => {
-                    getReport({report: 'barcode', id: product.id, cant: 10 });
-                },
+                onClick: (product) => {handleBarcodePrint(product)},
             });
         }
 
@@ -227,6 +232,22 @@ export default function Products() {
                 onConfirm={confirmDeleteProduct}
                 title="Confirmar eliminación"
                 message="¿Estás seguro de que deseas eliminar este producto?"
+            />
+            <ConfirmModal
+                isOpen={isBarcodeModalOpen}
+                onClose={() => setIsBarcodeModalOpen(false)}
+                onConfirm={(quantity) => {
+                    getReport({ report: 'barcode', id: selectedBarcodeProduct.id, cant: quantity });
+                    setIsBarcodeModalOpen(false);
+                }}
+                title="Ingresar cantidad"
+                message="Por favor, ingresa la cantidad de códigos de barras a generar."
+                inputConfig={{
+                    type: "number",
+                    placeholder: "Cantidad",
+                    min: 1,
+                    defaultValue: 0
+                }}
             />
         </main>
     );

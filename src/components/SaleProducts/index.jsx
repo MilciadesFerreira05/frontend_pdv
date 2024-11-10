@@ -46,13 +46,48 @@ const SaleProducts = () => {
     };
 
     const handlePrint = async (id) => {
-        await SaleService.print(id).
-        then((response) => {
-            alert('Impreso');    
-        }).catch((error) => {
-            alert('Error en la impresión');
-            console.error('Error printing sale:', error);
-        });
+
+        if(localStorage.getItem('printOnServer') === 'true'){            
+            await SaleService.print(id).
+            then((response) => {
+                alert('Impreso');    
+            }).catch((error) => {
+                alert('Error en la impresión');
+                console.error('Error printing sale:', error);
+            });
+        }else{
+
+            const params = {
+                id: id,
+                report: 'ticket'    
+            };
+
+            await SaleService.getReport(params).
+            then((response) => {
+                // Asegúrate de que el response sea un Blob
+                const blob = new Blob([response], { type: 'application/pdf' });
+    
+                // Crea una URL para el Blob
+                const url = window.URL.createObjectURL(blob);
+                
+                // Abre el PDF en una nueva pestaña para imprimir
+                const newWindow = window.open(url, '_blank');
+                
+                // En algunos navegadores, puedes forzar el diálogo de impresión cuando se abre
+                if (newWindow) {
+                    newWindow.onload = () => {
+                        newWindow.print();
+                    };
+                }
+
+                // Libera la URL del Blob cuando ya no sea necesaria
+                newWindow.onbeforeunload = () => window.URL.revokeObjectURL(url);
+                
+            }).catch((error) => {
+                alert('Error en la impresión');
+                console.error('Error printing sale:', error);
+            })
+        }
     };
     
 

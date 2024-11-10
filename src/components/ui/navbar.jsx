@@ -1,7 +1,8 @@
-import React, { useRef, useEffect, useContext} from "react";
-import { ArrowLeftIcon, LogoutIcon, MenuIcon, Package2Icon, SearchIcon } from "./icons";
+import React, { useRef, useEffect, useContext, useState} from "react";
+import { ArrowLeftIcon, LogoutIcon, MenuIcon, Package2Icon, PrintIcon, SearchIcon } from "./icons";
 import { UsersIcon } from './icons';
 import { AuthContext } from "../../services/Auth/AuthContext";
+import { ConfirmModal } from "./ConfirmModal";
 
 const Navbar = ({title, isOpen, toggleSidebar}) => {
   const dropdownRef = useRef(null); // Referencia al dropdown
@@ -28,6 +29,8 @@ const Navbar = ({title, isOpen, toggleSidebar}) => {
     window.location.href = '/login';
   };
 
+
+
   return (
     <header className="flex h-14 lg:h-[60px] items-center gap-4 border-b bg-muted/40 px-6">
       <button 
@@ -44,13 +47,20 @@ const Navbar = ({title, isOpen, toggleSidebar}) => {
           <UsersIcon /> {user.username}
         </summary>
         <ul className="menu dropdown-content bg-white border border-gray-300 rounded-box z-[1] w-52 p-2 shadow-lg right-0">
+          {/* <li>
+            <a href="/profile"  >
+              <UsersIcon className="h-4 w-4" /> Mi Perfil
+            </a>
+          </li> */}
+
           <li>
-            <a href="#"  onClick={handleLogout}>
+            <a href="" onClick={handleLogout}>
               <ArrowLeftIcon className="h-4 w-4" /> Cerrar Sesión
             </a>
           </li>
         </ul>
       </details>
+
     </header>
   );
 };

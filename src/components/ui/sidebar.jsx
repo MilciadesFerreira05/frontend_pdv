@@ -15,7 +15,8 @@ const menuItems = [
   { path: "/suppliers", text: "Proveedores", icon: <UsersIcon className="h-6 w-6" />, permission: "Supplier.all" },
   { path: "/categories", text: "Categorías", icon: <ClipboardIcon className="h-6 w-6" />, permission: "Category.all" },
   { path: "/roles", text: "Roles", icon: <SettingsIcon className="h-6 w-6" />, permission: "Role.all" },
-  { path: "/users", text: "Usuarios", icon: <UsersIcon className="h-6 w-6" />, permission: "User.all" }
+  { path: "/users", text: "Usuarios", icon: <UsersIcon className="h-6 w-6" />, permission: "User.all" },
+  { path: "/settings", text: "Configuración", icon: <SettingsIcon className="h-6 w-6" />, permission: "User.all" }
 ];
 
 const Sidebar = ({ isOpen, toggleSidebar }) => {

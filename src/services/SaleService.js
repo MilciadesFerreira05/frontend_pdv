@@ -57,11 +57,11 @@ class SaleService {
       throw error;
     }
   }
-  async getReport(desde, hasta) {
+  async getReport(params) {
     try {
       const response = await axiosInstance.get('/sales/report', {
-        responseType: 'blob', // Para obtener el archivo como Blob
-        params: { desde, hasta },
+        responseType: 'blob', 
+        params: { ...params },
         headers: {
           'Content-Type': 'application/json'
         }
