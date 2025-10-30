@@ -13,6 +13,7 @@ class SupplierService {
       return response.data; // Retorna los datos de la respuesta
     } catch (error) {
       console.error('Error fetching suppliers:', error);
+      alert(error.response.data);
       throw error; // Lanza el error para manejarlo en otro lugar si es necesario
     }
   }
@@ -28,6 +29,7 @@ class SupplierService {
       return response.data;
     } catch (error) {
       console.error('Error saving supplier:', error);
+      alert(error.response.data);
       throw error;
     }
   }
@@ -43,6 +45,7 @@ class SupplierService {
       return response.data;
     } catch (error) {
       console.error('Error updating supplier:', error);
+      alert(error.response.data);
       throw error;
     }
   }
@@ -57,6 +60,7 @@ class SupplierService {
       });
     } catch (error) {
       console.error('Error deleting supplier:', error);
+      alert(error.response.data);
       throw error;
     }
   }

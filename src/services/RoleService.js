@@ -13,6 +13,7 @@ class RoleService {
       return response.data; // Retorna los datos de la respuesta
     } catch (error) {
       console.error('Error fetching roles:', error);
+      alert(error.response.data);
       throw error; // Lanza el error para manejarlo en otro lugar si es necesario
     }
   }
@@ -27,6 +28,7 @@ class RoleService {
       return response.data; // Retorna los datos de la respuesta
     } catch (error) {
       console.error('Error fetching roles:', error);
+      alert(error.response.data);
       throw error; // Lanza el error para manejarlo en otro lugar si es necesario
     }
   }
@@ -41,6 +43,7 @@ class RoleService {
       return response.data;
     } catch (error) {
       console.error('Error saving role:', error);
+      alert(error.response.data);
       throw error;
     }
   }
@@ -55,6 +58,7 @@ class RoleService {
       return response.data;
     } catch (error) {
       console.error('Error updating role:', error);
+      alert(error.response.data);
       throw error;
     }
   }
@@ -68,6 +72,7 @@ class RoleService {
       });
     } catch (error) {
       console.error('Error deleting role:', error);
+      alert(error.response.data);
       throw error;
     }
   }
@@ -82,6 +87,7 @@ class RoleService {
       return response.data;
     } catch (error) {
       console.error('Error fetching permissions:', error);
+      alert(error.response.data);
       throw error;
     }
   }

@@ -13,6 +13,7 @@ class SaleService {
       return response.data; // Retorna los datos de la respuesta
     } catch (error) {
       console.error('Error fetching sales:', error);
+      alert(error.response.data);
       throw error; // Lanza el error para manejarlo en otro lugar si es necesario
     }
   }
@@ -27,6 +28,7 @@ class SaleService {
       return response.data;
     } catch (error) {
       console.error('Error saving sale:', error);
+      alert(error.response.data);
       throw error;
     }
   }
@@ -41,6 +43,7 @@ class SaleService {
       return response.data;
     } catch (error) {
       console.error('Error updating sale:', error);
+      alert(error.response.data);
       throw error;
     }
   }
@@ -54,6 +57,7 @@ class SaleService {
       });
     } catch (error) {
       console.error('Error deleting sale:', error);
+      alert(error.response.data);
       throw error;
     }
   }
@@ -77,6 +81,7 @@ class SaleService {
       return response.data; // Retorna el Blob del PDF
     } catch (error) {
       console.error('Error fetching PDF report:', error);
+      alert(error.response.data);
       throw error;
     }
   }
@@ -92,6 +97,7 @@ class SaleService {
       return response.data; // Retorna el Blob del PDF
     } catch (error) {
       console.error('Error fetching PDF report:', error);
+      alert(error.response.data);
       throw error;
     }
   }

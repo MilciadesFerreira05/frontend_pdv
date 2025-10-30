@@ -13,6 +13,7 @@ class ClientService {
       return response.data; // Retorna los datos de la respuesta
     } catch (error) {
       console.error('Error fetching clients:', error);
+      alert(error.response.data);
       throw error; // Lanza el error para manejarlo en otro lugar si es necesario
     }
   }
@@ -28,6 +29,7 @@ class ClientService {
       return response.data;
     } catch (error) {
       console.error('Error saving client:', error);
+      alert(error.response.data);
       throw error;
     }
   }
@@ -43,6 +45,7 @@ class ClientService {
       return response.data;
     } catch (error) {
       console.error('Error updating client:', error);
+      alert(error.response.data);
       throw error;
     }
   }
@@ -57,6 +60,7 @@ class ClientService {
       });
     } catch (error) {
       console.error('Error deleting client:', error);
+      alert(error.response.data);
       throw error;
     }
   }

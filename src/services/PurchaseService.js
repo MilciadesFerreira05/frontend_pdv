@@ -13,6 +13,7 @@ class PurchaseService {
       return response.data; // Retorna los datos de la respuesta
     } catch (error) {
       console.error('Error fetching purchases:', error);
+      alert(error.response.data);
       throw error; // Lanza el error para manejarlo en otro lugar si es necesario
     }
   }
@@ -27,6 +28,7 @@ class PurchaseService {
       return response.data;
     } catch (error) {
       console.error('Error saving purchase:', error);
+      alert(error.response.data);
       throw error;
     }
   }
@@ -41,6 +43,7 @@ class PurchaseService {
       return response.data;
     } catch (error) {
       console.log('Error updating purchase:', error);
+      alert(error.response.data);
       throw error;
     }
   }
@@ -54,6 +57,7 @@ class PurchaseService {
       });
     } catch (error) {
       console.error('Error deleting purchase:', error);
+      alert(error.response.data);
       throw error;
     }
   }
@@ -78,6 +82,7 @@ class PurchaseService {
       return response.data; // Retorna el Blob del PDF
     } catch (error) {
       console.error('Error fetching PDF report:', error);
+      alert(error.response.data);
       throw error;
     }
   }

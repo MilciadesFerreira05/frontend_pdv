@@ -17,31 +17,45 @@ import Config from '../Config/Config';
 
 const Home = () => {
   const { isAuthenticated } = useContext(AuthContext);
-  const [title, setTitle] = useState(''); // Estado para el título
-  const [sidebarOpen, setSidebarOpen] = useState(true); // Nuevo estado para el sidebar
+  const [title, setTitle] = useState('');
+  const [sidebarOpen, setSidebarOpen] = useState(true);
+  const [isMobile, setIsMobile] = useState(false);
 
-  // Mostrar componente login si no esta autenticado
   if (!isAuthenticated) {
     return <Route path="/login" component={Login} />;
   }
 
-  // Crear un componente de envoltura para las rutas que actualizan el título
+  // Detectar si está en móvil
+  useEffect(() => {
+    const handleResize = () => {
+      setIsMobile(window.innerWidth < 1024); // breakpoint lg
+    };
+    handleResize();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   const RouteWithTitle = ({ path, title, Component }) => {
     useEffect(() => {
       setTitle(title);
     }, [title]);
-
     return <Route path={path} component={Component} />;
   };
 
-  // Mostrar la aplicacion si esta autenticado
   return (
-    <div className={`grid min-h-screen w-full ${sidebarOpen ? 'lg:grid-cols-[200px_1fr]' : 'lg:grid-cols-[80px_1fr]'}`}>
-      {/* Pasamos el estado de sidebar y la función para alternarlo al Sidebar */}
-      <Sidebar isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-      <div className="flex flex-col">
-        <Navbar title={title}  isOpen={sidebarOpen} toggleSidebar={() => setSidebarOpen(!sidebarOpen) } />
-        <div className="p-4">
+    <div className="drawer lg:drawer-open min-h-screen">
+      {/* Checkbox para controlar apertura del drawer en móvil */}
+      <input id="main-drawer" type="checkbox" className="drawer-toggle" />
+
+      {/* Contenido principal */}
+      <div className="drawer-content flex flex-col">
+        <Navbar
+          title={title}
+          isOpen={sidebarOpen}
+          toggleSidebar={() => setSidebarOpen(!sidebarOpen)}
+          canToggle={!isMobile} // solo permite minimizar en desktop
+        />
+        <main className="p-4 flex-1 overflow-y-auto">
           <Switch>
             <RouteWithTitle path="/" title="Home" Component={QuickAccess} />
             <RouteWithTitle path="/products" title="Productos" Component={Products} />
@@ -51,10 +65,16 @@ const Home = () => {
             <RouteWithTitle path="/purchases" title="Compras" Component={PurchaseProducts} />
             <RouteWithTitle path="/sales" title="Ventas" Component={SaleProducts} />
             <RouteWithTitle path="/roles" title="Roles" Component={Roles} />
-            <RouteWithTitle path="/Users" title="Usuarios" Component={Users} />
+            <RouteWithTitle path="/users" title="Usuarios" Component={Users} />
             <RouteWithTitle path="/settings" title="Configuración" Component={Config} />
           </Switch>
-        </div>
+        </main>
+      </div>
+
+      {/* Sidebar */}
+      <div className="drawer-side ">
+        <label htmlFor="main-drawer" className="drawer-overlay"></label>
+        <Sidebar isOpen={isMobile ? true : sidebarOpen} canToggle={!isMobile} />
       </div>
     </div>
   );

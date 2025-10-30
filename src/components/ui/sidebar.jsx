@@ -27,7 +27,7 @@ const Sidebar = ({ isOpen, toggleSidebar }) => {
   };
 
   return (
-    <div className={`border-r bg-muted/40 transition-all duration-300 ${isOpen ? 'w-50' : 'w-18'} lg:block`}>
+    <div className={`border-r bg-base-100 dark:bg-base-800  transition-all duration-300 ${isOpen ? 'w-50' : 'w-18'} lg:block h-full`}>
       <div className="flex h-full max-h-screen flex-col gap-2 transition-all">
         <div className="flex items-center justify-between h-[60px] border-b px-4">
           <Link to="/" className="flex items-center gap-2 font-semibold">

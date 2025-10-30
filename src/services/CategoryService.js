@@ -13,6 +13,7 @@ class CategoryService {
       return response.data; 
     } catch (error) {
       console.error('Error fetching categories:', error);
+      alert(error.response.data);
       throw error; 
     }
   }
@@ -28,6 +29,7 @@ class CategoryService {
       return response.data; // Retorna los datos de la respuesta
     } catch (error) {
       console.error('Error fetching categories:', error);
+      alert(error.response.data);
       throw error; // Lanza el error para manejarlo en otro lugar si es necesario
     }
   }
@@ -42,6 +44,7 @@ class CategoryService {
       return response.data;
     } catch (error) {
       console.error('Error saving category:', error);
+      alert(error.response.data);
       throw error;
     }
   }
@@ -56,6 +59,7 @@ class CategoryService {
       return response.data;
     } catch (error) {
       console.error('Error updating category:', error);
+      alert(error.response.data);
       throw error;
     }
   }
@@ -69,6 +73,7 @@ class CategoryService {
       });
     } catch (error) {
       console.error('Error deleting category:', error);
+      alert(error.response.data);
       throw error;
     }
   }

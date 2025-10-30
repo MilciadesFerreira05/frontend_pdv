@@ -72,42 +72,49 @@ const TableData = ({ data = [], columns = [], actions = [], totalElements = 0, p
 
 // Componente Dropdown
 const Dropdown = ({ actions, rowData }) => {
-    const dropdownRef = useRef(null); // Referencia al dropdown
+  const dropdownRef = useRef(null);
 
-    // Manejo de clics fuera del dropdown
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
-                // Cierra el dropdown si se hace clic fuera de él
-                dropdownRef.current.open = false; // Cierra el dropdown
-            }
-        };
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+        dropdownRef.current.open = false;
+      }
+    };
 
-        document.addEventListener("mousedown", handleClickOutside);
-        
-        return () => {
-            document.removeEventListener("mousedown", handleClickOutside);
-        };
-    }, []);
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
-    return (
-        <details ref={dropdownRef} className="dropdown">
-            <summary className="btn m-1 btn-sm">
-                <MenuIcon className="h-4 w-4" />
-                Opciones
-            </summary>
-            <ul className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
-                {actions?.map((a, index) => (
-                    <li key={index}>
-                        <a onClick={() => a.onClick(rowData)}>
-                            {a.icon ? a.icon : null}
-                            {a.label}
-                        </a>
-                    </li>
-                ))}
-            </ul>
-        </details>
-    );
+  return (
+    <details ref={dropdownRef} className="dropdown">
+      <summary
+        className="
+          btn m-1 btn-sm 
+          flex items-center justify-center gap-2 
+          whitespace-nowrap 
+          min-w-fit 
+          !flex-nowrap
+        "
+      >
+        <MenuIcon className="h-4 w-4 shrink-0" />
+        <span className="shrink-0">Opciones</span>
+      </summary>
+
+      <ul className="menu dropdown-content bg-base-100 rounded-box z-[1] w-52 p-2 shadow">
+        {actions?.map((a, index) => (
+          <li key={index}>
+            <a
+              onClick={() => a.onClick(rowData)}
+              className="flex items-center gap-2"
+            >
+              {a.icon && a.icon}
+              {a.label}
+            </a>
+          </li>
+        ))}
+      </ul>
+    </details>
+  );
 };
 
 // Componentes auxiliares de la tabla

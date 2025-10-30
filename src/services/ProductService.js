@@ -13,6 +13,7 @@ class ProductService {
       return response.data; // Retorna los datos de la respuesta
     } catch (error) {
       console.error('Error fetching products:', error);
+      alert(error.response.data);
       throw error; // Lanza el error para manejarlo en otro lugar si es necesario
     }
   }
@@ -28,6 +29,7 @@ class ProductService {
       return response.data; // Retorna los datos de la respuesta
     } catch (error) {
       console.error('Error searching products:', error);
+      alert(error.response.data);
       throw error;
     }
   }
@@ -43,6 +45,7 @@ class ProductService {
       return response.data; // Retorna los datos de la respuesta
     } catch (error) {
       console.error('Error searching products:', error);
+      alert(error.response.data);
       throw error;
     }
   }
@@ -57,6 +60,7 @@ class ProductService {
       return response.data;
     } catch (error) {
       console.error('Error saving product:', error);
+      alert(error.response.data);
       throw error;
     }
   }
@@ -71,6 +75,7 @@ class ProductService {
       return response.data;
     } catch (error) {
       console.error('Error updating product:', error);
+      alert(error.response.data);
       throw error;
     }
   }
@@ -84,6 +89,7 @@ class ProductService {
       });
     } catch (error) {
       console.error('Error deleting product:', error);
+      alert(error.response.data);
       throw error;
     }
   }
@@ -101,6 +107,7 @@ class ProductService {
       return response.data; // Retorna los datos de la respuesta
     } catch (error) {
       console.error('Error fetching products:', error);
+      alert(error.response.data);
       throw error; // Lanza el error para manejarlo en otro lugar si es necesario
     }
   }
